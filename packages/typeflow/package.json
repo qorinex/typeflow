@@ -1,0 +1,38 @@
+{
+  "name": "typeflow",
+  "version": "0.1.0",
+  "description": "Typed node graphs with wildcard type inference",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": ["**/*.css"],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./core": {
+      "types": "./src/core/index.ts",
+      "import": "./src/core/index.ts",
+      "default": "./src/core/index.ts"
+    },
+    "./theme": {
+      "types": "./src/theme/index.ts",
+      "import": "./src/theme/index.ts",
+      "default": "./src/theme/index.ts"
+    },
+    "./vue": {
+      "types": "./src/vue/index.ts",
+      "import": "./src/vue/index.ts",
+      "default": "./src/vue/index.ts"
+    },
+    "./style.css": "./src/style.css"
+  },
+  "files": ["src"],
+  "peerDependencies": {
+    "@vue-flow/background": "^1.2.0",
+    "@vue-flow/core": "^1.33.1",
+    "vue": "^3.2.45"
+  },
+  "keywords": ["graph", "types", "wildcard", "inference", "vue"]
+}
