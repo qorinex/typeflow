@@ -1,11 +1,10 @@
 export type {
-  PlanTheme,
-  PlanThemeOverride,
+  FlowTheme,
+  FlowThemeOverride,
   PinTypeAppearance,
   NodeClassAppearance,
   CanvasAppearance,
-  ChromeAppearance,
 } from './types'
 export { defaultTheme } from './defaults'
 export { createTheme, getPinColor, getPinLabel, getNodeAppearance } from './createTheme'
-export { planThemeKey, providePlanTheme, usePlanTheme } from './inject'
+export { flowThemeKey, provideFlowTheme, useFlowTheme } from './inject'

@@ -1,4 +1,4 @@
-import type { PlanNodeData } from '../types/node'
+import type { NodeData } from '../types/node'
 import type { NodeWC } from '../inference/propagate'
 import { pinIdToData } from './pin'
 import { resolveScheme, validateSchemes } from './pinTypes'
@@ -12,7 +12,7 @@ export type ConnectParams = {
 
 export function canConnect(
   params: ConnectParams,
-  nodesById: Record<string, PlanNodeData>,
+  nodesById: Record<string, NodeData>,
   nodeWildcards: NodeWC,
 ): boolean {
   if (!params.sourceHandle || !params.targetHandle || !params.source || !params.target) {
@@ -34,6 +34,8 @@ export function canConnect(
   const sourcePin = sourcePins[sourceRef.index]
   const targetPin = targetPins[targetRef.index]
   if (!sourcePin || !targetPin) return false
+
+  if (sourcePin.linkable === false || targetPin.linkable === false) return false
 
   const sourceScheme = resolveScheme(sourcePin.valueSchema, sourceNode.id, nodeWildcards)
   const targetScheme = resolveScheme(targetPin.valueSchema, targetNode.id, nodeWildcards)

@@ -1,9 +1,9 @@
-import type { PlanNodeData } from '../types/node'
-import type { PinTypeScheme } from '../types/pin'
-import { getTypeRegistry, type TypeRegistry } from '../types/registry'
+import type { NodeData } from '../types/node'
+import { isTypeVar, type PinTypeScheme } from '../types/pin'
 import { applyBindings, schemesEqual, unify, type BindContext } from './unify'
 import { pinIdToData } from '../helpers/pin'
 import { cloneDeep } from '../helpers/clone'
+import { connectionToLinkRef, linkToEdgeId } from '../helpers/link'
 
 export type NodeWC = {
   [nodeId: string]: {
@@ -12,6 +12,7 @@ export type NodeWC = {
 }
 
 export type FlowEdgeLike = {
+  id?: string
   source: string
   target: string
   sourceHandle?: string | null
@@ -41,23 +42,32 @@ type EdgeConstraint = {
   right: PinEndpoint
 }
 
-function resolvePinEndpoint(
-  node: PlanNodeData,
-  handle: string,
-): PinEndpoint | null {
+function resolvePinEndpoint(node: NodeData, handle: string): PinEndpoint | null {
   const { direction, index, nodeId } = pinIdToData(handle)
-  const pins = direction === 'in' ? node.inPins : node.outPins
-  const pin = pins[index]
+  const pin = (direction === 'in' ? node.inPins : node.outPins)[index]
   if (!pin) return null
   return { scheme: pin.valueSchema, nodeId: node.id || nodeId }
 }
 
+function edgeKey(edge: FlowEdgeLike): string {
+  if (edge.id) return edge.id
+  if (edge.sourceHandle && edge.targetHandle) {
+    const link = connectionToLinkRef({
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
+    })
+    if (link) return linkToEdgeId(link)
+  }
+  return `${edge.source}->${edge.target}`
+}
+
 export function inferWildcards(
   edges: FlowEdgeLike[],
-  planNodes: PlanNodeData[],
-  registry: TypeRegistry = getTypeRegistry(),
+  graphNodes: NodeData[],
 ): InferenceResult {
-  const nodesById = Object.fromEntries(planNodes.map((node) => [node.id, node]))
+  const nodesById = Object.fromEntries(graphNodes.map((n) => [n.id, n]))
   const bindings: NodeWC = {}
   const conflicts: InferenceConflict[] = []
   const constraints: EdgeConstraint[] = []
@@ -72,27 +82,22 @@ export function inferWildcards(
     const right = resolvePinEndpoint(targetNode, edge.targetHandle)
     if (!left || !right) continue
 
-    constraints.push({
-      id: `${edge.source}:${edge.sourceHandle}=>${edge.target}:${edge.targetHandle}`,
-      left,
-      right,
-    })
+    constraints.push({ id: edgeKey(edge), left, right })
   }
 
-  const queue = constraints.map((_, index) => index)
+  const queue = constraints.map((_, i) => i)
   const inQueue = new Set(queue)
   let guard = 0
   const maxIter = Math.max(64, constraints.length * 32)
 
   const touchNode = (nodeId: string) => {
-    constraints.forEach((constraint, index) => {
-      const touches =
-        constraint.left.nodeId === nodeId || constraint.right.nodeId === nodeId
-      if (touches && !inQueue.has(index)) {
-        queue.push(index)
-        inQueue.add(index)
+    for (let i = 0; i < constraints.length; i++) {
+      const c = constraints[i]
+      if ((c.left.nodeId === nodeId || c.right.nodeId === nodeId) && !inQueue.has(i)) {
+        queue.push(i)
+        inQueue.add(i)
       }
-    })
+    }
   }
 
   while (queue.length && guard++ < maxIter) {
@@ -110,16 +115,11 @@ export function inferWildcards(
       bindVar: (side, groupIndex, scheme) => {
         const nodeId = side === 'left' ? constraint.left.nodeId : constraint.right.nodeId
         bindings[nodeId] = bindings[nodeId] || {}
-        const previous = bindings[nodeId][groupIndex]
-        if (previous && schemesEqual(previous, scheme, registry)) return false
-        if (previous && scheme.type === 'wildcard' && previous.type !== 'wildcard') return false
-        if (
-          previous &&
-          previous.type !== 'wildcard' &&
-          scheme.type !== 'wildcard' &&
-          !schemesEqual(previous, scheme, registry)
-        ) {
-          const merged = unify(previous, scheme, undefined, registry)
+        const prev = bindings[nodeId][groupIndex]
+        if (prev && schemesEqual(prev, scheme)) return false
+        if (prev && isTypeVar(scheme) && !isTypeVar(prev)) return false
+        if (prev && !isTypeVar(prev) && !isTypeVar(scheme) && !schemesEqual(prev, scheme)) {
+          const merged = unify(prev, scheme)
           if (!merged.ok) {
             conflicts.push({
               edgeId: constraint.id,
@@ -129,7 +129,7 @@ export function inferWildcards(
             })
             return false
           }
-          if (schemesEqual(previous, merged.scheme, registry)) return false
+          if (schemesEqual(prev, merged.scheme)) return false
           bindings[nodeId][groupIndex] = cloneDeep(merged.scheme)
           touchNode(nodeId)
           return true
@@ -140,18 +140,9 @@ export function inferWildcards(
       },
     }
 
-    const leftResolved = applyBindings(
-      constraint.left.scheme,
-      bindings[constraint.left.nodeId],
-      registry,
-    )
-    const rightResolved = applyBindings(
-      constraint.right.scheme,
-      bindings[constraint.right.nodeId],
-      registry,
-    )
-
-    const result = unify(leftResolved, rightResolved, ctx, registry)
+    const left = applyBindings(constraint.left.scheme, bindings[constraint.left.nodeId])
+    const right = applyBindings(constraint.right.scheme, bindings[constraint.right.nodeId])
+    const result = unify(left, right, ctx)
     if (!result.ok) {
       conflicts.push({
         edgeId: constraint.id,
@@ -160,6 +151,14 @@ export function inferWildcards(
         reason: result.reason,
       })
     }
+  }
+
+  if (queue.length) {
+    conflicts.push({
+      source: '',
+      target: '',
+      reason: `max iterations (${maxIter}), ${queue.length} left`,
+    })
   }
 
   return { bindings, conflicts }

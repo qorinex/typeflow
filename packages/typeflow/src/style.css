@@ -2,19 +2,19 @@
 @import '@vue-flow/core/dist/theme-default.css';
 
 .vue-flow__edge .vue-flow__edge-path,
-.vue-flow__edge .plan-edge-path {
+.vue-flow__edge .flow-edge-path {
   transition: stroke 0.15s ease, stroke-width 0.15s ease;
   fill: none;
   opacity: 1;
 }
 
 .vue-flow__edge.selected .vue-flow__edge-path,
-.vue-flow__edge.selected .plan-edge-path {
+.vue-flow__edge.selected .flow-edge-path {
   filter: brightness(1.25);
   stroke-width: 2.5px;
 }
 
-.plan-edge-conflict {
+.flow-edge-conflict {
   opacity: 0.95;
 }
 
@@ -31,7 +31,7 @@
   background: transparent;
 }
 
-.plan-canvas-root {
+.flow-canvas-root {
   width: 100%;
   height: 100%;
 }

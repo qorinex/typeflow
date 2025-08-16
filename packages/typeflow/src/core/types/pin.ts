@@ -1,4 +1,10 @@
-export type PinTypeScheme = {
+export type TypeVarScheme = {
+  kind: 'var'
+  groupIndex: number
+  default?: unknown
+}
+
+export type NamedTypeScheme = {
   type: string
   default?: unknown
   item?: PinTypeScheme
@@ -10,32 +16,37 @@ export type PinTypeScheme = {
   output?: { schema: PinTypeScheme; name?: string }[]
 }
 
-export type WildScheme = PinTypeScheme & { type: 'wildcard'; groupIndex: number }
+export type PinTypeScheme = TypeVarScheme | NamedTypeScheme
+
+// stored on in-pins only
+export interface PinLink {
+  inNode: string
+  inIdx: number
+  outNode: string
+  outIdx: number
+}
 
 export interface Pin {
-  inlined?: boolean
   linkable?: boolean
   name?: string
   valueSchema: PinTypeScheme
-}
-
-export interface PinMeta {
   links: PinLink[]
-}
-
-export interface PinLink {
-  inIdx?: number
-  inNode?: string
-  outIdx?: number
-  outNode?: string
 }
 
 export type Direction = 'out' | 'in'
 
-export function isWildcard(scheme: PinTypeScheme): scheme is WildScheme {
-  return scheme.type === 'wildcard' && typeof (scheme as WildScheme).groupIndex === 'number'
+export function isTypeVar(scheme: PinTypeScheme): scheme is TypeVarScheme {
+  return (scheme as TypeVarScheme).kind === 'var'
 }
 
-export function wildcard(groupIndex: number, defaults?: unknown): WildScheme {
-  return { type: 'wildcard', groupIndex, default: defaults }
+export function isNamedType(scheme: PinTypeScheme): scheme is NamedTypeScheme {
+  return !isTypeVar(scheme)
+}
+
+export function schemeTypeTag(scheme: PinTypeScheme): string {
+  return isTypeVar(scheme) ? 'var' : scheme.type
+}
+
+export function typeVar(groupIndex: number, defaults?: unknown): TypeVarScheme {
+  return { kind: 'var', groupIndex, default: defaults }
 }

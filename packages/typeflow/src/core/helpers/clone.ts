@@ -1,5 +1,10 @@
 export function cloneDeep<T>(value: T): T {
-  if (value === null || value === undefined) return value
+  if (value == null) return value
+  try {
+    return structuredClone(value)
+  } catch {
+    //
+  }
   try {
     return JSON.parse(JSON.stringify(value)) as T
   } catch {

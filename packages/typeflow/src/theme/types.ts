@@ -1,5 +1,3 @@
-import type { NodeClass } from '../core'
-
 export interface PinTypeAppearance {
   color: string
   label?: string
@@ -19,23 +17,16 @@ export interface CanvasAppearance {
   edgeSelectedFilter?: string
 }
 
-export interface ChromeAppearance {
-  showLegend: boolean
-  showWildcardPanel: boolean
-}
-
-export interface PlanTheme {
+export interface FlowTheme {
   pins: Record<string, PinTypeAppearance>
   pinFallback: PinTypeAppearance
-  nodes: Record<NodeClass | 'default', NodeClassAppearance>
+  nodes: Record<string, NodeClassAppearance>
   canvas: CanvasAppearance
-  chrome: ChromeAppearance
 }
 
-export type PlanThemeOverride = {
+export type FlowThemeOverride = {
   pins?: Record<string, Partial<PinTypeAppearance> | PinTypeAppearance>
   pinFallback?: Partial<PinTypeAppearance>
-  nodes?: Partial<Record<NodeClass | 'default', Partial<NodeClassAppearance>>>
+  nodes?: Record<string, Partial<NodeClassAppearance>>
   canvas?: Partial<CanvasAppearance>
-  chrome?: Partial<ChromeAppearance>
 }

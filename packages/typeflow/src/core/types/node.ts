@@ -1,25 +1,15 @@
-import type { Pin, PinMeta } from './pin'
+import type { Pin } from './pin'
 
-export type NodeClass = 'const' | 'event' | 'func' | 'proc' | 'pivot' | 'other' | 'default'
-
-export interface PlanNodeData {
+export interface NodeData {
   id: string
   displayName: string
   description?: string
   name?: string
   inPins: Pin[]
-  inPinsMeta: PinMeta[]
   outPins: Pin[]
-  outPinsMeta: PinMeta[]
   type: string
-  nodeClass?: NodeClass
+  // free string for theming (blueprint: const | event | func etc)
+  nodeClass?: string
   x: number
   y: number
-}
-
-export interface SamplePlan {
-  id: string
-  name: string
-  description?: string
-  nodes: PlanNodeData[]
 }

@@ -1,34 +1,30 @@
 export type {
   Pin,
-  PinMeta,
   PinLink,
   PinTypeScheme,
+  TypeVarScheme,
+  NamedTypeScheme,
   Direction,
-  WildScheme,
 } from './types/pin'
-export { isWildcard, wildcard } from './types/pin'
-export type { PlanNodeData, SamplePlan, NodeClass } from './types/node'
+export {
+  isTypeVar,
+  isNamedType,
+  schemeTypeTag,
+  typeVar,
+} from './types/pin'
+export type { NodeData } from './types/node'
 
 export {
-  TypeRegistry,
-  createDefaultRegistry,
-  getTypeRegistry,
-  setTypeRegistry,
-  resetTypeRegistry,
   getSchemeChildren,
   autoChildren,
-  type TypeDef,
+  setSchemeChildren,
   type TypeChild,
-} from './types/registry'
+} from './helpers/schemeTree'
 
 export {
   getTypeString,
-  getTypeStringWithWildcard,
-  findWildcardScheme,
   findAllWildcardsInScheme,
   replaceAllWildcards,
-  replaceWildcardSchemeByGroupIndex,
-  extractAllWildcardSchemeByGroupIndex,
   validateSchemes,
   resolveScheme,
   schemesEqual,
@@ -38,6 +34,17 @@ export { pinIdToData, dataToPinId } from './helpers/pin'
 export { buildFlowElements } from './helpers/buildFlow'
 export { cloneDeep } from './helpers/clone'
 export { canConnect, type ConnectParams } from './helpers/canConnect'
+export {
+  addLink,
+  removeLink,
+  connectionToLinkRef,
+  linkToEdgeId,
+  edgeIdToLink,
+  linksEqual,
+  type LinkRef,
+  type AddLinkResult,
+  type RemoveLinkResult,
+} from './helpers/link'
 
 export {
   inferWildcards,

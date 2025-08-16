@@ -1,20 +1,17 @@
 <template>
   <div
-    class="relative flex items-center justify-center"
+    class="relative"
     :class="type === 'target' ? 'right-1' : 'left-1'"
     :title="tooltip"
   >
-    <span
-      class="pointer-events-none absolute h-3.5 w-3.5 rounded-sm border-2 bg-zinc-950"
-      :style="{ borderColor: color, backgroundColor: color + '33' }"
-    />
+    <PinIcon :pin="resolvedPin" class-name="absolute w-5 h-5 pointer-events-none" />
     <Handle
       :id="dataToPinId(directionMap[type], index, nodeId, schemeTypeTag(pin.valueSchema))"
       :position="type === 'target' ? Position.Right : Position.Left"
       :type="type"
       :connectable="connectable"
       :is-valid-connection="validateHandle"
-      class="relative h-5 w-5 top-0 !translate-x-0 !translate-y-0 rounded-none border-0 bg-transparent"
+      class="relative h-5 w-5 top-0 !translate-x-0 !translate-y-0 rounded-none bg-transparent border-none"
     />
   </div>
 </template>
@@ -29,9 +26,9 @@ import {
   canConnect,
   resolveScheme,
   schemeTypeTag,
-} from '../core'
-import { useWildcards } from '../composables/useWildcards'
-import { useFlowTheme } from '../theme'
+} from '../../core'
+import { useWildcards } from '../../composables/useWildcards'
+import PinIcon from './pinIcons/PinIcon.vue'
 
 const directionMap = {
   source: 'in',
@@ -50,14 +47,13 @@ const props = withDefaults(
 )
 
 const { nodeWildcards, nodesById } = useWildcards()
-const { pinColor } = useFlowTheme()
 
-const resolvedSchema = computed(() =>
-  resolveScheme(props.pin.valueSchema, props.nodeId, nodeWildcards.value),
-)
+const resolvedPin = computed((): Pin => ({
+  ...props.pin,
+  valueSchema: resolveScheme(props.pin.valueSchema, props.nodeId, nodeWildcards.value),
+}))
 
-const color = computed(() => pinColor(schemeTypeTag(resolvedSchema.value)))
-const tooltip = computed(() => getTypeString(resolvedSchema.value))
+const tooltip = computed(() => getTypeString(resolvedPin.value.valueSchema))
 
 const validateHandle: ValidConnectionFunc = (params: Connection) => {
   if (!params.source || !params.target || !params.sourceHandle || !params.targetHandle) {

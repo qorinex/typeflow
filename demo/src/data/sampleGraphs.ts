@@ -1,19 +1,22 @@
-import type { SamplePlan, Pin, PinLink, PinTypeScheme } from 'typeflow/core'
-import { wildcard } from 'typeflow/core'
+import type { NodeData, Pin, PinLink, PinTypeScheme } from 'typeflow/core'
+import { typeVar } from 'typeflow/core'
 
-function pin(name: string, schema: PinTypeScheme): Pin {
-  return { name, linkable: true, valueSchema: schema }
+export type SampleGraph = {
+  id: string
+  name: string
+  description?: string
+  nodes: NodeData[]
 }
 
-function emptyMeta() {
-  return { links: [] as PinLink[] }
+function pin(name: string, schema: PinTypeScheme, links: PinLink[] = []): Pin {
+  return { name, linkable: true, valueSchema: schema, links }
 }
 
 function link(inNode: string, inIdx: number, outNode: string, outIdx: number): PinLink {
   return { inNode, inIdx, outNode, outIdx }
 }
 
-const wc = (groupIndex: number) => wildcard(groupIndex)
+const wc = (groupIndex: number) => typeVar(groupIndex)
 const list = (inner: PinTypeScheme): PinTypeScheme => ({ type: 'list', item: inner })
 const mapOf = (inner: PinTypeScheme): PinTypeScheme => ({ type: 'map', entry: inner })
 const tuple = (...items: PinTypeScheme[]): PinTypeScheme => ({ type: 'tuple', items })
@@ -64,7 +67,7 @@ const id = {
   freeStr: uid(),
 }
 
-export const multiDirectionPlan: SamplePlan = {
+export const multiDirectionGraph: SampleGraph = {
   id: uid(),
   name: 'Multi-direction',
   description: 'some desc',
@@ -77,9 +80,8 @@ export const multiDirectionPlan: SamplePlan = {
       x: 40,
       y: 120,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', list(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.branchLeft,
@@ -88,10 +90,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 280,
       y: 40,
-      inPins: [pin('in', list(wc(0)))],
-      inPinsMeta: [{ links: [link(id.branchLeft, 0, id.streamSource, 0)] }],
+      inPins: [pin('in', list(wc(0)), [link(id.branchLeft, 0, id.streamSource, 0)])],
       outPins: [pin('out', list(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.branchRight,
@@ -100,10 +101,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 280,
       y: 200,
-      inPins: [pin('in', list(wc(0)))],
-      inPinsMeta: [{ links: [link(id.branchRight, 0, id.streamSource, 0)] }],
+      inPins: [pin('in', list(wc(0)), [link(id.branchRight, 0, id.streamSource, 0)])],
       outPins: [pin('out', list(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.join,
@@ -112,13 +112,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 520,
       y: 120,
-      inPins: [pin('left', list(wc(0))), pin('right', list(wc(0)))],
-      inPinsMeta: [
-        { links: [link(id.join, 0, id.branchLeft, 0)] },
-        { links: [link(id.join, 1, id.branchRight, 0)] },
-      ],
+      inPins: [pin('left', list(wc(0)), [link(id.join, 0, id.branchLeft, 0)]), pin('right', list(wc(0)), [link(id.join, 1, id.branchRight, 0)])],
       outPins: [pin('out', list(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.needFloats,
@@ -127,10 +123,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'proc',
       x: 760,
       y: 120,
-      inPins: [pin('items', list({ type: 'float' }))],
-      inPinsMeta: [{ links: [link(id.needFloats, 0, id.join, 0)] }],
+      inPins: [pin('items', list({ type: 'float' }), [link(id.needFloats, 0, id.join, 0)])],
       outPins: [],
-      outPinsMeta: [],
+
     },
 
     {
@@ -141,9 +136,8 @@ export const multiDirectionPlan: SamplePlan = {
       x: 40,
       y: 380,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', list({ type: 'str' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.scores,
@@ -153,9 +147,8 @@ export const multiDirectionPlan: SamplePlan = {
       x: 40,
       y: 500,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', list({ type: 'int' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.zip,
@@ -164,13 +157,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 300,
       y: 420,
-      inPins: [pin('left', list(wc(0))), pin('right', list(wc(1)))],
-      inPinsMeta: [
-        { links: [link(id.zip, 0, id.names, 0)] },
-        { links: [link(id.zip, 1, id.scores, 0)] },
-      ],
+      inPins: [pin('left', list(wc(0)), [link(id.zip, 0, id.names, 0)]), pin('right', list(wc(1)), [link(id.zip, 1, id.scores, 0)])],
       outPins: [pin('pairs', list(tuple(wc(0), wc(1))))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.unzip,
@@ -179,23 +168,21 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 560,
       y: 420,
-      inPins: [pin('pairs', list(tuple(wc(0), wc(1))))],
-      inPinsMeta: [{ links: [link(id.unzip, 0, id.zip, 0)] }],
+      inPins: [pin('pairs', list(tuple(wc(0), wc(1))), [link(id.unzip, 0, id.zip, 0)])],
       outPins: [pin('left', list(wc(0))), pin('right', list(wc(1)))],
-      outPinsMeta: [emptyMeta(), emptyMeta()],
+
     },
 
     {
       id: id.userId,
-      displayName: 'User id',
+      displayName: 'Name',
       type: 'const',
       nodeClass: 'const',
       x: 40,
       y: 640,
       inPins: [],
-      inPinsMeta: [],
-      outPins: [pin('out', { type: 'UserId' })],
-      outPinsMeta: [emptyMeta()],
+      outPins: [pin('out', { type: 'str' })],
+
     },
     {
       id: id.passId,
@@ -204,10 +191,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 260,
       y: 640,
-      inPins: [pin('in', wc(0))],
-      inPinsMeta: [{ links: [link(id.passId, 0, id.userId, 0)] }],
+      inPins: [pin('in', wc(0), [link(id.passId, 0, id.userId, 0)])],
       outPins: [pin('out', wc(0))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.wrapOk,
@@ -216,10 +202,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 480,
       y: 600,
-      inPins: [pin('value', wc(0))],
-      inPinsMeta: [{ links: [link(id.wrapOk, 0, id.passId, 0)] }],
+      inPins: [pin('value', wc(0), [link(id.wrapOk, 0, id.passId, 0)])],
       outPins: [pin('out', result(wc(0), { type: 'str' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.mapResult,
@@ -228,10 +213,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 790,
       y: 600,
-      inPins: [pin('in', result(wc(0), wc(1)))],
-      inPinsMeta: [{ links: [link(id.mapResult, 0, id.wrapOk, 0)] }],
+      inPins: [pin('in', result(wc(0), wc(1)), [link(id.mapResult, 0, id.wrapOk, 0)])],
       outPins: [pin('out', result(wc(0), wc(1)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.unwrapResult,
@@ -240,10 +224,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 1260,
       y: 600,
-      inPins: [pin('in', result(wc(0), wc(1)))],
-      inPinsMeta: [{ links: [link(id.unwrapResult, 0, id.mapResult, 0)] }],
+      inPins: [pin('in', result(wc(0), wc(1)), [link(id.unwrapResult, 0, id.mapResult, 0)])],
       outPins: [pin('ok', wc(0)), pin('err', wc(1))],
-      outPinsMeta: [emptyMeta(), emptyMeta()],
+
     },
     {
       id: id.wrapSome,
@@ -252,10 +235,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 480,
       y: 740,
-      inPins: [pin('value', wc(0))],
-      inPinsMeta: [{ links: [link(id.wrapSome, 0, id.passId, 0)] }],
+      inPins: [pin('value', wc(0), [link(id.wrapSome, 0, id.passId, 0)])],
       outPins: [pin('out', option(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.mapOption,
@@ -264,10 +246,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 720,
       y: 740,
-      inPins: [pin('in', option(wc(0)))],
-      inPinsMeta: [{ links: [link(id.mapOption, 0, id.wrapSome, 0)] }],
+      inPins: [pin('in', option(wc(0)), [link(id.mapOption, 0, id.wrapSome, 0)])],
       outPins: [pin('out', option(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
 
     {
@@ -278,9 +259,8 @@ export const multiDirectionPlan: SamplePlan = {
       x: 40,
       y: 900,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', mapOf({ type: 'float' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.mapPass,
@@ -289,10 +269,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 280,
       y: 900,
-      inPins: [pin('in', mapOf(wc(0)))],
-      inPinsMeta: [{ links: [link(id.mapPass, 0, id.mapSource, 0)] }],
+      inPins: [pin('in', mapOf(wc(0)), [link(id.mapPass, 0, id.mapSource, 0)])],
       outPins: [pin('out', mapOf(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.mapSink,
@@ -301,10 +280,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'proc',
       x: 540,
       y: 900,
-      inPins: [pin('data', mapOf({ type: 'float' }))],
-      inPinsMeta: [{ links: [link(id.mapSink, 0, id.mapPass, 0)] }],
+      inPins: [pin('data', mapOf({ type: 'float' }), [link(id.mapSink, 0, id.mapPass, 0)])],
       outPins: [],
-      outPinsMeta: [],
+
     },
 
     {
@@ -315,9 +293,8 @@ export const multiDirectionPlan: SamplePlan = {
       x: 40,
       y: 1040,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', tuple({ type: 'int' }, { type: 'str' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.tuplePass,
@@ -326,10 +303,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'func',
       x: 280,
       y: 1040,
-      inPins: [pin('in', tuple(wc(0), wc(1)))],
-      inPinsMeta: [{ links: [link(id.tuplePass, 0, id.tupleSource, 0)] }],
+      inPins: [pin('in', tuple(wc(0), wc(1)), [link(id.tuplePass, 0, id.tupleSource, 0)])],
       outPins: [pin('out', tuple(wc(0), wc(1)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.tupleSink,
@@ -338,10 +314,9 @@ export const multiDirectionPlan: SamplePlan = {
       nodeClass: 'proc',
       x: 570,
       y: 1040,
-      inPins: [pin('pair', tuple({ type: 'int' }, { type: 'str' }))],
-      inPinsMeta: [{ links: [link(id.tupleSink, 0, id.tuplePass, 0)] }],
+      inPins: [pin('pair', tuple({ type: 'int' }, { type: 'str' }), [link(id.tupleSink, 0, id.tuplePass, 0)])],
       outPins: [],
-      outPinsMeta: [],
+
     },
 
     {
@@ -352,7 +327,6 @@ export const multiDirectionPlan: SamplePlan = {
       x: 40,
       y: 1180,
       inPins: [],
-      inPinsMeta: [],
       outPins: [
         pin(
           'out',
@@ -362,7 +336,7 @@ export const multiDirectionPlan: SamplePlan = {
           }),
         ),
       ],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.structPass,
@@ -378,9 +352,9 @@ export const multiDirectionPlan: SamplePlan = {
             name: wc(0),
             age: wc(1),
           }),
+          [link(id.structPass, 0, id.structSource, 0)],
         ),
       ],
-      inPinsMeta: [{ links: [link(id.structPass, 0, id.structSource, 0)] }],
       outPins: [
         pin(
           'out',
@@ -390,7 +364,7 @@ export const multiDirectionPlan: SamplePlan = {
           }),
         ),
       ],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.structSink,
@@ -406,16 +380,16 @@ export const multiDirectionPlan: SamplePlan = {
             name: { type: 'str' },
             age: { type: 'int' },
           }),
+          [link(id.structSink, 0, id.structPass, 0)],
         ),
       ],
-      inPinsMeta: [{ links: [link(id.structSink, 0, id.structPass, 0)] }],
       outPins: [],
-      outPinsMeta: [],
+
     },
   ],
 }
 
-export const conflictPlan: SamplePlan = {
+export const conflictGraph: SampleGraph = {
   id: uid(),
   name: 'Conflict',
   description: 'Incompatible list types on one join',
@@ -428,9 +402,8 @@ export const conflictPlan: SamplePlan = {
       x: 40,
       y: 80,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', list({ type: 'int' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.makeStrs,
@@ -440,9 +413,8 @@ export const conflictPlan: SamplePlan = {
       x: 40,
       y: 280,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', list({ type: 'str' }))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.badJoin,
@@ -451,13 +423,9 @@ export const conflictPlan: SamplePlan = {
       nodeClass: 'func',
       x: 360,
       y: 160,
-      inPins: [pin('left', list(wc(0))), pin('right', list(wc(0)))],
-      inPinsMeta: [
-        { links: [link(id.badJoin, 0, id.makeInts, 0)] },
-        { links: [link(id.badJoin, 1, id.makeStrs, 0)] },
-      ],
+      inPins: [pin('left', list(wc(0)), [link(id.badJoin, 0, id.makeInts, 0)]), pin('right', list(wc(0)), [link(id.badJoin, 1, id.makeStrs, 0)])],
       outPins: [pin('out', list(wc(0)))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.consume,
@@ -466,10 +434,9 @@ export const conflictPlan: SamplePlan = {
       nodeClass: 'proc',
       x: 640,
       y: 160,
-      inPins: [pin('items', list(wc(0)))],
-      inPinsMeta: [{ links: [link(id.consume, 0, id.badJoin, 0)] }],
+      inPins: [pin('items', list(wc(0)), [link(id.consume, 0, id.badJoin, 0)])],
       outPins: [],
-      outPinsMeta: [],
+
     },
     {
       id: id.boundInt,
@@ -479,9 +446,8 @@ export const conflictPlan: SamplePlan = {
       x: 40,
       y: 480,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', { type: 'int' })],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.pass,
@@ -490,10 +456,9 @@ export const conflictPlan: SamplePlan = {
       nodeClass: 'func',
       x: 280,
       y: 480,
-      inPins: [pin('in', wc(0))],
-      inPinsMeta: [{ links: [link(id.pass, 0, id.boundInt, 0)] }],
+      inPins: [pin('in', wc(0), [link(id.pass, 0, id.boundInt, 0)])],
       outPins: [pin('out', wc(0))],
-      outPinsMeta: [emptyMeta()],
+
     },
     {
       id: id.freeStr,
@@ -503,11 +468,10 @@ export const conflictPlan: SamplePlan = {
       x: 40,
       y: 600,
       inPins: [],
-      inPinsMeta: [],
       outPins: [pin('out', { type: 'str' })],
-      outPinsMeta: [emptyMeta()],
+
     },
   ],
 }
 
-export const samplePlans: SamplePlan[] = [multiDirectionPlan, conflictPlan]
+export const sampleGraphs: SampleGraph[] = [multiDirectionGraph, conflictGraph]

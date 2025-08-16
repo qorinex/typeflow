@@ -1,32 +1,30 @@
 import { computed, inject, provide, type ComputedRef, type InjectionKey, type Ref } from 'vue'
-import { createTheme, getNodeAppearance, getPinColor, getPinLabel } from './createTheme'
 import { defaultTheme } from './defaults'
-import type { PlanTheme, PlanThemeOverride } from './types'
-import type { NodeClass } from '../core'
+import { getNodeAppearance, getPinColor, getPinLabel } from './createTheme'
+import type { FlowTheme } from './types'
 
-export const planThemeKey: InjectionKey<ComputedRef<PlanTheme>> = Symbol('plan-theme')
+export const flowThemeKey: InjectionKey<ComputedRef<FlowTheme>> = Symbol('flow-theme')
 
-export function providePlanTheme(theme: Ref<PlanTheme> | ComputedRef<PlanTheme> | PlanTheme) {
+export function provideFlowTheme(theme: Ref<FlowTheme> | ComputedRef<FlowTheme> | FlowTheme) {
   const resolved = computed(() => {
     if (typeof theme === 'object' && theme !== null && 'value' in theme) {
-      return (theme as Ref<PlanTheme>).value
+      return (theme as Ref<FlowTheme>).value
     }
-    return theme as PlanTheme
+    return theme as FlowTheme
   })
-  provide(planThemeKey, resolved)
+  provide(flowThemeKey, resolved)
   return resolved
 }
 
-export function usePlanTheme() {
-  const theme = inject(planThemeKey, computed(() => defaultTheme))
+export function useFlowTheme() {
+  const theme = inject(flowThemeKey, computed(() => defaultTheme))
 
   return {
     theme,
     pinColor: (type: string) => getPinColor(theme.value, type),
     pinLabel: (type: string) => getPinLabel(theme.value, type),
-    nodeStyle: (nodeClass?: NodeClass | string) => getNodeAppearance(theme.value, nodeClass),
+    nodeStyle: (nodeClass?: string) => getNodeAppearance(theme.value, nodeClass),
   }
 }
 
-export { createTheme, defaultTheme }
-export type { PlanTheme, PlanThemeOverride }
+export type { FlowTheme, FlowThemeOverride } from './types'

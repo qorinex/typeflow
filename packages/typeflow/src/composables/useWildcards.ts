@@ -1,18 +1,16 @@
 import { inject, type InjectionKey, type Ref } from 'vue'
-import type { InferenceConflict, NodeWC, PlanNodeData } from '../core'
+import type { InferenceConflict, NodeData, NodeWC } from '../core'
 
 export type WildcardsContext = {
   nodeWildcards: Ref<NodeWC>
-  nodesById: Ref<Record<string, PlanNodeData>>
+  nodesById: Ref<Record<string, NodeData>>
   conflicts: Ref<InferenceConflict[]>
 }
 
-export const wildcardsKey: InjectionKey<WildcardsContext> = Symbol('plan-wildcards')
+export const wildcardsKey: InjectionKey<WildcardsContext> = Symbol('flow-wildcards')
 
-export function useWildcards(): WildcardsContext {
+export function useWildcards() {
   const ctx = inject(wildcardsKey)
-  if (!ctx) {
-    throw new Error('useWildcards() must be used inside PlanCanvas provider')
-  }
+  if (!ctx) throw new Error('useWildcards() needs useTypeflow() above')
   return ctx
 }

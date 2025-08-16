@@ -12,7 +12,10 @@
       class="mb-2 last:mb-0 pl-2 border-l-2 border-red-500/80"
     >
       <div class="text-zinc-200 font-mono break-all">{{ conflict.reason }}</div>
-      <div class="text-[10px] text-zinc-500 mt-0.5">
+      <div
+        v-if="conflict.source || conflict.target"
+        class="text-[10px] text-zinc-500 mt-0.5"
+      >
         {{ conflict.source }} -> {{ conflict.target }}
       </div>
     </div>

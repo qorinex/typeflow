@@ -1,20 +1,20 @@
 <template>
   <div
     class="relative flex items-center justify-center"
-    :class="type === 'target' ? 'right-1' : 'left-1'"
+    :class="type === 'target' ? 'right-0.5' : 'left-0.5'"
     :title="tooltip"
   >
     <span
-      class="pointer-events-none absolute h-3.5 w-3.5 rounded-sm border-2 bg-zinc-950"
-      :style="{ borderColor: color, backgroundColor: color + '33' }"
+      class="pointer-events-none absolute h-3 w-3 rotate-45 border-2 bg-zinc-950"
+      :style="{ borderColor: color }"
     />
     <Handle
-      :id="dataToPinId(directionMap[type], index, nodeId, schemeTypeTag(pin.valueSchema))"
+      :id="handleId"
       :position="type === 'target' ? Position.Right : Position.Left"
       :type="type"
       :connectable="connectable"
       :is-valid-connection="validateHandle"
-      class="relative h-5 w-5 top-0 !translate-x-0 !translate-y-0 rounded-none border-0 bg-transparent"
+      class="relative h-4 w-4 !translate-x-0 !translate-y-0 rounded-none border-0 bg-transparent"
     />
   </div>
 </template>
@@ -23,15 +23,15 @@
 import { Handle, Position, type Connection, type HandleType, type ValidConnectionFunc } from '@vue-flow/core'
 import { computed } from 'vue'
 import {
-  type Pin,
+  canConnect,
   dataToPinId,
   getTypeString,
-  canConnect,
   resolveScheme,
   schemeTypeTag,
-} from '../core'
-import { useWildcards } from '../composables/useWildcards'
-import { useFlowTheme } from '../theme'
+  useFlowTheme,
+  useWildcards,
+  type Pin,
+} from 'typeflow'
 
 const directionMap = {
   source: 'in',
@@ -52,12 +52,16 @@ const props = withDefaults(
 const { nodeWildcards, nodesById } = useWildcards()
 const { pinColor } = useFlowTheme()
 
-const resolvedSchema = computed(() =>
+const resolved = computed(() =>
   resolveScheme(props.pin.valueSchema, props.nodeId, nodeWildcards.value),
 )
 
-const color = computed(() => pinColor(schemeTypeTag(resolvedSchema.value)))
-const tooltip = computed(() => getTypeString(resolvedSchema.value))
+const handleId = computed(() =>
+  dataToPinId(directionMap[props.type], props.index, props.nodeId, schemeTypeTag(props.pin.valueSchema)),
+)
+
+const color = computed(() => pinColor(schemeTypeTag(resolved.value)))
+const tooltip = computed(() => getTypeString(resolved.value) || props.pin.name || '')
 
 const validateHandle: ValidConnectionFunc = (params: Connection) => {
   if (!params.source || !params.target || !params.sourceHandle || !params.targetHandle) {

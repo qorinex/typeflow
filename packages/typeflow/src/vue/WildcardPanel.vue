@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute top-3 right-3 z-10 w-72 max-h-[70%] overflow-auto rounded-lg border border-zinc-700 bg-zinc-900/95 p-3 text-xs shadow-xl"
+    class="absolute top-3 left-3 z-10 w-72 max-h-[70%] overflow-auto rounded-lg border border-zinc-700 bg-zinc-900/95 p-3 text-xs shadow-xl"
   >
     <div class="font-semibold text-zinc-200 mb-2">Bindings</div>
 
@@ -24,12 +24,12 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { getTypeString } from '../core'
+import { getTypeString, isTypeVar, schemeTypeTag } from '../core'
 import { useWildcards } from '../composables/useWildcards'
-import { usePlanTheme } from '../theme'
+import { useFlowTheme } from '../theme'
 
 const { nodeWildcards, nodesById } = useWildcards()
-const { pinColor } = usePlanTheme()
+const { pinColor } = useFlowTheme()
 
 const rows = computed(() => {
   return Object.entries(nodeWildcards.value)
@@ -38,7 +38,7 @@ const rows = computed(() => {
       const bindings = Object.entries(groups).map(([g, scheme]) => ({
         groupIndex: Number(g),
         typeStr: getTypeString(scheme),
-        color: pinColor(scheme.type === 'wildcard' ? 'wildcard' : scheme.type),
+        color: pinColor(isTypeVar(scheme) ? 'var' : schemeTypeTag(scheme)),
       }))
       return {
         nodeId,

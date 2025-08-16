@@ -18,11 +18,11 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { usePlanTheme } from '../theme'
+import { useFlowTheme } from '../theme'
 
-const HIDDEN = new Set(['embedded-macro', 'wildcard', 'any'])
+const HIDDEN = new Set(['embedded-macro', 'var', 'any'])
 
-const { theme } = usePlanTheme()
+const { theme } = useFlowTheme()
 
 const items = computed(() =>
   Object.entries(theme.value.pins)

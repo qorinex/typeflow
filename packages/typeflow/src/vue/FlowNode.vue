@@ -1,7 +1,7 @@
 <template>
   <div
     class="rounded-xl overflow-hidden min-w-[148px] bg-zinc-900/95 border outline-sky-500 outline-offset-2 relative shadow-lg shadow-black/20"
-    :class="[selected ? 'outline outline-1 outline-double' : '']"
+    :class="[selected ? ' outline-1 outline-double' : '']"
     :style="{ borderColor: nodeLook.borderColor }"
   >
     <div
@@ -31,14 +31,15 @@
           :key="`in-${index}`"
           class="flex gap-2 py-1 items-center relative hover:bg-white/5 pr-1"
         >
-          <PinHandle
+          <component
+            :is="PinHandleComp"
             :node-id="data.id"
             :index="index"
             type="source"
             :pin="pin"
             :connectable="connectable"
           />
-          <div class="flex flex-col ml-1 leading-3">
+          <div class="flex  flex-col ml-1 leading-3">
             <span class="text-xs text-zinc-300">{{ pin.name }}</span>
             <span
               v-if="resolvedLabel(pin, data.id)"
@@ -66,7 +67,8 @@
               {{ resolvedLabel(pin, data.id) }}
             </span>
           </div>
-          <PinHandle
+          <component
+            :is="PinHandleComp"
             :node-id="data.id"
             :index="index"
             type="target"
@@ -80,21 +82,27 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import {
-  type PlanNodeData,
+  type NodeData,
   type Pin,
   findAllWildcardsInScheme,
   getTypeString,
+  isNamedType,
+  isTypeVar,
   resolveScheme,
+  schemeTypeTag,
 } from '../core'
-import PinHandle from './PinHandle.vue'
+import DefaultPinHandle from './PinHandle.vue'
+import { pinHandleKey } from './pinHandleKey'
 import { useWildcards } from '../composables/useWildcards'
-import { usePlanTheme } from '../theme'
+import { useFlowTheme } from '../theme'
+
+const PinHandleComp = inject(pinHandleKey, DefaultPinHandle)
 
 const props = withDefaults(
   defineProps<{
-    data: PlanNodeData
+    data: NodeData
     selected?: boolean
     connectable?: boolean
   }>(),
@@ -105,13 +113,14 @@ const props = withDefaults(
 )
 
 const { nodeWildcards } = useWildcards()
-const { pinColor, nodeStyle } = usePlanTheme()
+const { pinColor, nodeStyle } = useFlowTheme()
 
 const nodeLook = computed(() => nodeStyle(props.data.nodeClass))
 
 function resolvedLabel(pin: Pin, nodeId: string): string | null {
   const hasWc = findAllWildcardsInScheme(pin.valueSchema).length > 0
-  if (!hasWc && pin.valueSchema.type !== 'list' && pin.valueSchema.type !== 'map') {
+  const named = isNamedType(pin.valueSchema) ? pin.valueSchema : null
+  if (!hasWc && named?.type !== 'list' && named?.type !== 'map') {
     return null
   }
   const resolved = resolveScheme(pin.valueSchema, nodeId, nodeWildcards.value)
@@ -122,12 +131,16 @@ function resolvedLabel(pin: Pin, nodeId: string): string | null {
 
 function labelColor(pin: Pin, nodeId: string): string {
   const resolved = resolveScheme(pin.valueSchema, nodeId, nodeWildcards.value)
-  if ((resolved.type === 'list' || resolved.type === 'option') && resolved.item) {
-    return pinColor(resolved.item.type === 'wildcard' ? resolved.type : resolved.item.type)
+  if (isNamedType(resolved)) {
+    if ((resolved.type === 'list' || resolved.type === 'option') && resolved.item) {
+      return pinColor(
+        isTypeVar(resolved.item) ? resolved.type : schemeTypeTag(resolved.item),
+      )
+    }
+    if (resolved.type === 'map' && resolved.entry) {
+      return pinColor(isTypeVar(resolved.entry) ? 'map' : schemeTypeTag(resolved.entry))
+    }
   }
-  if (resolved.type === 'map' && resolved.entry) {
-    return pinColor(resolved.entry.type === 'wildcard' ? 'map' : resolved.entry.type)
-  }
-  return pinColor(resolved.type)
+  return pinColor(schemeTypeTag(resolved))
 }
 </script>

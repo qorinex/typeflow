@@ -1,10 +1,12 @@
-import type { PlanNodeData } from '../types/node'
+import type { NodeData } from '../types/node'
+import { schemeTypeTag } from '../types/pin'
 import { dataToPinId } from './pin'
+import { linkToEdgeId, type LinkRef } from './link'
 
-export function buildFlowElements(planNodes: PlanNodeData[]) {
-  const nodes = planNodes.map((n) => ({
+export function buildFlowElements(graphNodes: NodeData[]) {
+  const nodes = graphNodes.map((n) => ({
     id: n.id,
-    type: 'plan',
+    type: 'flow',
     label: n.displayName,
     position: { x: n.x, y: n.y },
     data: { ...n },
@@ -19,41 +21,39 @@ export function buildFlowElements(planNodes: PlanNodeData[]) {
     type: string
   }[] = []
 
-  for (const node of planNodes) {
-    node.inPinsMeta.forEach((meta, inIdx) => {
-      for (const link of meta.links || []) {
-        if (
-          link.inNode == null ||
-          link.outNode == null ||
-          link.inIdx == null ||
-          link.outIdx == null
-        ) {
-          continue
-        }
-
-        const sourceNode = planNodes.find((n) => n.id === link.inNode)
-        const targetNode = planNodes.find((n) => n.id === link.outNode)
+  for (const node of graphNodes) {
+    node.inPins.forEach((inPin, inIdx) => {
+      for (const link of inPin.links || []) {
+        const sourceNode = graphNodes.find((n) => n.id === link.inNode)
+        const targetNode = graphNodes.find((n) => n.id === link.outNode)
         if (!sourceNode || !targetNode) continue
 
-        const inPin = sourceNode.inPins[link.inIdx]
+        const sourceInPin = sourceNode.inPins[link.inIdx]
         const outPin = targetNode.outPins[link.outIdx]
-        if (!inPin || !outPin) continue
+        if (!sourceInPin || !outPin) continue
 
         const sourceHandle = dataToPinId(
           'in',
           link.inIdx,
           String(link.inNode),
-          inPin.valueSchema.type,
+          schemeTypeTag(sourceInPin.valueSchema),
         )
         const targetHandle = dataToPinId(
           'out',
           link.outIdx,
           String(link.outNode),
-          outPin.valueSchema.type,
+          schemeTypeTag(outPin.valueSchema),
         )
 
+        const ref: LinkRef = {
+          inNode: String(link.inNode),
+          inIdx: link.inIdx,
+          outNode: String(link.outNode),
+          outIdx: link.outIdx,
+        }
+
         edges.push({
-          id: `${link.outNode}_${link.outIdx}__${link.inNode}_${link.inIdx}`,
+          id: linkToEdgeId(ref),
           source: String(link.inNode),
           sourceHandle,
           target: String(link.outNode),

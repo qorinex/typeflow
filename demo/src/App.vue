@@ -10,28 +10,55 @@
       <div class="h-4 w-px bg-zinc-700" />
       <nav class="flex gap-1 flex-wrap">
         <button
-          v-for="plan in samplePlans"
-          :key="plan.id"
+          v-for="graph in graphs"
+          :key="graph.id"
           type="button"
           class="px-3 py-1 rounded text-sm transition-colors"
           :class="
-            activePlanId === plan.id
+            page === 'graph' && activeGraphId === graph.id
               ? 'bg-sky-600 text-white'
               : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
           "
-          @click="activePlanId = plan.id"
+          @click="openGraph(graph.id)"
         >
-          {{ plan.name }}
+          {{ graph.name }}
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1 rounded text-sm transition-colors"
+          :class="
+            page === 'custom'
+              ? 'bg-fuchsia-600 text-white'
+              : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+          "
+          @click="page = 'custom'"
+        >
+          Custom UI
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1 rounded text-sm transition-colors"
+          :class="
+            page === 'clean'
+              ? 'bg-emerald-600 text-white'
+              : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+          "
+          @click="page = 'clean'"
+        >
+          Clean default
         </button>
       </nav>
       <div class="ml-auto flex items-center gap-3 min-w-0">
         <span
-          v-if="activePlan?.description"
+          v-if="page === 'graph' && activeGraph?.description"
           class="text-xs text-zinc-500 truncate hidden sm:inline max-w-xs"
         >
-          {{ activePlan.description }}
+          {{ activeGraph.description }}
         </span>
-        <label class="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none shrink-0">
+        <label
+          v-if="page === 'graph'"
+          class="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none shrink-0"
+        >
           <input v-model="showDebug" type="checkbox" class="rounded" />
           bindings
         </label>
@@ -39,11 +66,22 @@
     </header>
 
     <main class="flex-1 min-h-0">
-      <PlanCanvas
-        v-if="activePlan"
-        :key="activePlan.id"
-        :plan-nodes="activePlan.nodes"
-        :theme-override="themeOverride"
+      <DemoFlow
+        v-if="page === 'graph' && activeGraph"
+        :key="`graph-${activeGraph.id}`"
+        v-model:nodes="activeNodes"
+        :show-legend="true"
+        :show-wildcard-panel="showDebug"
+      />
+      <CustomUiPage
+        v-else-if="page === 'custom'"
+        :key="'custom'"
+        v-model:nodes="customNodes"
+      />
+      <CleanDemoPage
+        v-else-if="page === 'clean'"
+        :key="'clean'"
+        v-model:nodes="cleanNodes"
       />
     </main>
   </div>
@@ -51,17 +89,35 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { PlanCanvas, type PlanThemeOverride } from 'typeflow'
-import { samplePlans } from '@/data/samplePlans'
+import { cloneDeep, type NodeData } from 'typeflow'
+import { sampleGraphs, type SampleGraph } from '@/data/sampleGraphs'
+import { cleanGraphNodes } from '@/data/cleanGraph'
+import DemoFlow from '@/components/DemoFlow.vue'
+import CustomUiPage from '@/components/CustomUiPage.vue'
+import CleanDemoPage from '@/components/CleanDemoPage.vue'
 
-const activePlanId = ref(samplePlans[0].id)
-const activePlan = computed(() => samplePlans.find((p) => p.id === activePlanId.value))
+type Page = 'graph' | 'custom' | 'clean'
+
+const graphs = ref<SampleGraph[]>(cloneDeep(sampleGraphs))
+const activeGraphId = ref(graphs.value[0].id)
+const activeGraph = computed(() => graphs.value.find((g) => g.id === activeGraphId.value))
+
+const activeNodes = computed<NodeData[]>({
+  get: () => activeGraph.value?.nodes ?? [],
+  set: (nodes) => {
+    const graph = graphs.value.find((g) => g.id === activeGraphId.value)
+    if (graph) graph.nodes = nodes
+  },
+})
+
+const customNodes = ref<NodeData[]>(cloneDeep(sampleGraphs[0].nodes))
+const cleanNodes = ref<NodeData[]>(cloneDeep(cleanGraphNodes))
+
+const page = ref<Page>('graph')
 const showDebug = ref(false)
 
-const themeOverride = computed<PlanThemeOverride>(() => ({
-  chrome: {
-    showLegend: true,
-    showWildcardPanel: showDebug.value,
-  },
-}))
+function openGraph(id: string) {
+  activeGraphId.value = id
+  page.value = 'graph'
+}
 </script>
