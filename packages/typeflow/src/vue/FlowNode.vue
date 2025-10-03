@@ -86,17 +86,15 @@ import { computed, inject } from 'vue'
 import {
   type NodeData,
   type Pin,
-  findAllWildcardsInScheme,
-  getTypeString,
+  findTypeVars,
   isNamedType,
-  isTypeVar,
   resolveScheme,
-  schemeTypeTag,
 } from '../core'
 import DefaultPinHandle from './PinHandle.vue'
 import { pinHandleKey } from './pinHandleKey'
 import { useWildcards } from '../composables/useWildcards'
 import { useFlowTheme } from '../theme'
+import { useTypeRegistry } from '../typeRegistry'
 
 const PinHandleComp = inject(pinHandleKey, DefaultPinHandle)
 
@@ -114,33 +112,23 @@ const props = withDefaults(
 
 const { nodeWildcards } = useWildcards()
 const { pinColor, nodeStyle } = useFlowTheme()
+const { typeRegistry } = useTypeRegistry()
 
 const nodeLook = computed(() => nodeStyle(props.data.nodeClass))
 
 function resolvedLabel(pin: Pin, nodeId: string): string | null {
-  const hasWc = findAllWildcardsInScheme(pin.valueSchema).length > 0
-  const named = isNamedType(pin.valueSchema) ? pin.valueSchema : null
-  if (!hasWc && named?.type !== 'list' && named?.type !== 'map') {
+  const hasTypeVars = findTypeVars(pin.valueSchema).length > 0
+  const resolved = resolveScheme(pin.valueSchema, nodeId, nodeWildcards.value)
+  if (!hasTypeVars && (!isNamedType(resolved) || !Object.keys(resolved.args ?? {}).length)) {
     return null
   }
-  const resolved = resolveScheme(pin.valueSchema, nodeId, nodeWildcards.value)
-  const label = getTypeString(resolved)
-  if (hasWc || label.includes('[') || label.includes('{')) return label
+  const label = typeRegistry.value.format(resolved)
+  if (hasTypeVars || label.includes('[') || label.includes('{')) return label
   return null
 }
 
 function labelColor(pin: Pin, nodeId: string): string {
   const resolved = resolveScheme(pin.valueSchema, nodeId, nodeWildcards.value)
-  if (isNamedType(resolved)) {
-    if ((resolved.type === 'list' || resolved.type === 'option') && resolved.item) {
-      return pinColor(
-        isTypeVar(resolved.item) ? resolved.type : schemeTypeTag(resolved.item),
-      )
-    }
-    if (resolved.type === 'map' && resolved.entry) {
-      return pinColor(isTypeVar(resolved.entry) ? 'map' : schemeTypeTag(resolved.entry))
-    }
-  }
-  return pinColor(schemeTypeTag(resolved))
+  return pinColor(typeRegistry.value.colorKey(resolved))
 }
 </script>

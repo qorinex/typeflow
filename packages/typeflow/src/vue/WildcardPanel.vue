@@ -24,12 +24,13 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { getTypeString, isTypeVar, schemeTypeTag } from '../core'
 import { useWildcards } from '../composables/useWildcards'
 import { useFlowTheme } from '../theme'
+import { useTypeRegistry } from '../typeRegistry'
 
 const { nodeWildcards, nodesById } = useWildcards()
 const { pinColor } = useFlowTheme()
+const { typeRegistry } = useTypeRegistry()
 
 const rows = computed(() => {
   return Object.entries(nodeWildcards.value)
@@ -37,8 +38,8 @@ const rows = computed(() => {
       const node = nodesById.value[nodeId]
       const bindings = Object.entries(groups).map(([g, scheme]) => ({
         groupIndex: Number(g),
-        typeStr: getTypeString(scheme),
-        color: pinColor(isTypeVar(scheme) ? 'var' : schemeTypeTag(scheme)),
+        typeStr: typeRegistry.value.format(scheme),
+        color: pinColor(typeRegistry.value.colorKey(scheme)),
       }))
       return {
         nodeId,

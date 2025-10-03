@@ -1,57 +1,46 @@
 <template>
-  <PrimitiveIcon
-    v-if="isTypeVar(pin.valueSchema)"
+  <ExecIcon
+    v-if="kind === 'exec'"
+    :primary-color="primary"
     :class="className"
-    :primary-color="pinColor('var')"
   />
   <StructIcon
-    v-else-if="isNamedType(pin.valueSchema) && pin.valueSchema.type === 'struct'"
+    v-else-if="kind === 'struct'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="pinColor('struct')"
+    :secondary-color="primary"
   />
   <MapIcon
-    v-else-if="isNamedType(pin.valueSchema) && pin.valueSchema.type === 'map'"
+    v-else-if="kind === 'map'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="pinColor(entryTag)"
+    :secondary-color="secondary"
   />
   <TupleIcon
-    v-else-if="isNamedType(pin.valueSchema) && pin.valueSchema.type === 'tuple'"
+    v-else-if="kind === 'tuple'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="pinColor('tuple')"
+    :secondary-color="primary"
   />
   <ListIcon
-    v-else-if="
-      isNamedType(pin.valueSchema) &&
-      (pin.valueSchema.type === 'list' || pin.valueSchema.type === 'option')
-    "
+    v-else-if="kind === 'list'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="pinColor(itemTag)"
-  />
-  <ExecIcon
-    v-else-if="isNamedType(pin.valueSchema) && pin.valueSchema.type === 'exec'"
-    :primary-color="pinColor('exec')"
-    :class="className"
+    :secondary-color="secondary"
   />
   <PrimitiveIcon
     v-else
     :class="className"
-    :primary-color="pinColor(schemeTypeTag(pin.valueSchema))"
+    :primary-color="primary"
   />
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import {
-  isNamedType,
-  isTypeVar,
-  schemeTypeTag,
-  type Pin,
-} from '../../../core'
+import { isTypeVar, schemeTypeTag, type Pin } from '../../../core'
 import { useFlowTheme } from '../../../theme'
+import { useTypeRegistry } from '../../../typeRegistry'
+import type { BlueprintPinIconKind } from '../pack'
 import StructIcon from './StructIcon.vue'
 import MapIcon from './MapIcon.vue'
 import TupleIcon from './TupleIcon.vue'
@@ -65,17 +54,38 @@ const props = defineProps<{
 }>()
 
 const { pinColor, theme } = useFlowTheme()
+const { typeRegistry } = useTypeRegistry()
+
 const frame = computed(() => theme.value.pinFallback.color)
 
-const entryTag = computed(() => {
-  const s = props.pin.valueSchema
-  if (!isNamedType(s) || !s.entry) return 'any'
-  return schemeTypeTag(s.entry)
+const kind = computed((): BlueprintPinIconKind => {
+  if (isTypeVar(props.pin.valueSchema)) return 'primitive'
+  const icon = typeRegistry.value.getDef(props.pin.valueSchema.type)?.icon
+  if (
+    icon === 'list' ||
+    icon === 'map' ||
+    icon === 'struct' ||
+    icon === 'tuple' ||
+    icon === 'exec'
+  ) {
+    return icon
+  }
+  return 'primitive'
 })
 
-const itemTag = computed(() => {
+const primary = computed(() =>
+  pinColor(typeRegistry.value.colorKey(props.pin.valueSchema)),
+)
+
+const secondary = computed(() => {
   const s = props.pin.valueSchema
-  if (!isNamedType(s) || !s.item) return 'any'
-  return schemeTypeTag(s.item)
+  if (isTypeVar(s)) return pinColor('var')
+  const def = typeRegistry.value.getDef(s.type)
+  const from = def?.colorFrom
+  if (from && s.args?.[from]) {
+    const child = s.args[from]
+    return pinColor(isTypeVar(child) ? s.type : schemeTypeTag(child))
+  }
+  return primary.value
 })
 </script>

@@ -11,20 +11,18 @@ export {
   isNamedType,
   schemeTypeTag,
   typeVar,
+  typeScheme,
 } from './types/pin'
 export type { NodeData } from './types/node'
 
 export {
   getSchemeChildren,
-  autoChildren,
   setSchemeChildren,
   type TypeChild,
 } from './helpers/schemeTree'
 
 export {
   getTypeString,
-  findAllWildcardsInScheme,
-  replaceAllWildcards,
   validateSchemes,
   resolveScheme,
   schemesEqual,
@@ -57,7 +55,7 @@ export {
 export {
   unify,
   applyBindings,
-  findWildcards,
+  findTypeVars,
   type BindContext,
   type BindSide,
   type UnifyResult,

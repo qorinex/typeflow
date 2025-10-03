@@ -25,13 +25,13 @@ import { computed } from 'vue'
 import {
   type Pin,
   dataToPinId,
-  getTypeString,
   canConnect,
   resolveScheme,
   schemeTypeTag,
 } from '../core'
 import { useWildcards } from '../composables/useWildcards'
 import { useFlowTheme } from '../theme'
+import { useTypeRegistry } from '../typeRegistry'
 
 const directionMap = {
   source: 'in',
@@ -51,13 +51,14 @@ const props = withDefaults(
 
 const { nodeWildcards, nodesById } = useWildcards()
 const { pinColor } = useFlowTheme()
+const { typeRegistry } = useTypeRegistry()
 
 const resolvedSchema = computed(() =>
   resolveScheme(props.pin.valueSchema, props.nodeId, nodeWildcards.value),
 )
 
-const color = computed(() => pinColor(schemeTypeTag(resolvedSchema.value)))
-const tooltip = computed(() => getTypeString(resolvedSchema.value))
+const color = computed(() => pinColor(typeRegistry.value.colorKey(resolvedSchema.value)))
+const tooltip = computed(() => typeRegistry.value.format(resolvedSchema.value))
 
 const validateHandle: ValidConnectionFunc = (params: Connection) => {
   if (!params.source || !params.target || !params.sourceHandle || !params.targetHandle) {

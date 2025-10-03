@@ -26,6 +26,11 @@
       "import": "./src/vue/index.ts",
       "default": "./src/vue/index.ts"
     },
+    "./typeRegistry": {
+      "types": "./src/typeRegistry/index.ts",
+      "import": "./src/typeRegistry/index.ts",
+      "default": "./src/typeRegistry/index.ts"
+    },
     "./presets/blueprint": {
       "types": "./src/presets/blueprint/index.ts",
       "import": "./src/presets/blueprint/index.ts",

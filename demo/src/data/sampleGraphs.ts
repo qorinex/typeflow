@@ -1,5 +1,6 @@
 import type { NodeData, Pin, PinLink, PinTypeScheme } from 'typeflow/core'
 import { typeVar } from 'typeflow/core'
+import { bp } from 'typeflow/presets/blueprint'
 
 export type SampleGraph = {
   id: string
@@ -17,18 +18,7 @@ function link(inNode: string, inIdx: number, outNode: string, outIdx: number): P
 }
 
 const wc = (groupIndex: number) => typeVar(groupIndex)
-const list = (inner: PinTypeScheme): PinTypeScheme => ({ type: 'list', item: inner })
-const mapOf = (inner: PinTypeScheme): PinTypeScheme => ({ type: 'map', entry: inner })
-const tuple = (...items: PinTypeScheme[]): PinTypeScheme => ({ type: 'tuple', items })
-const structOf = (fields: Record<string, PinTypeScheme>): PinTypeScheme => ({
-  type: 'struct',
-  fields,
-})
-const option = (inner: PinTypeScheme): PinTypeScheme => ({ type: 'option', item: inner })
-const result = (ok: PinTypeScheme, err: PinTypeScheme): PinTypeScheme => ({
-  type: 'result',
-  slots: { ok, err },
-})
+const { list, map: mapOf, tuple, struct: structOf } = bp
 
 const uid = () => crypto.randomUUID()
 
@@ -44,11 +34,6 @@ const id = {
   unzip: uid(),
   userId: uid(),
   passId: uid(),
-  wrapOk: uid(),
-  mapResult: uid(),
-  unwrapResult: uid(),
-  wrapSome: uid(),
-  mapOption: uid(),
   mapSource: uid(),
   mapPass: uid(),
   mapSink: uid(),
@@ -195,62 +180,6 @@ export const multiDirectionGraph: SampleGraph = {
       outPins: [pin('out', wc(0))],
 
     },
-    {
-      id: id.wrapOk,
-      displayName: 'Ok',
-      type: 'result-ok',
-      nodeClass: 'func',
-      x: 480,
-      y: 600,
-      inPins: [pin('value', wc(0), [link(id.wrapOk, 0, id.passId, 0)])],
-      outPins: [pin('out', result(wc(0), { type: 'str' }))],
-
-    },
-    {
-      id: id.mapResult,
-      displayName: 'Map result',
-      type: 'result-map',
-      nodeClass: 'func',
-      x: 790,
-      y: 600,
-      inPins: [pin('in', result(wc(0), wc(1)), [link(id.mapResult, 0, id.wrapOk, 0)])],
-      outPins: [pin('out', result(wc(0), wc(1)))],
-
-    },
-    {
-      id: id.unwrapResult,
-      displayName: 'Unwrap',
-      type: 'result-unwrap',
-      nodeClass: 'func',
-      x: 1260,
-      y: 600,
-      inPins: [pin('in', result(wc(0), wc(1)), [link(id.unwrapResult, 0, id.mapResult, 0)])],
-      outPins: [pin('ok', wc(0)), pin('err', wc(1))],
-
-    },
-    {
-      id: id.wrapSome,
-      displayName: 'Some',
-      type: 'option-some',
-      nodeClass: 'func',
-      x: 480,
-      y: 740,
-      inPins: [pin('value', wc(0), [link(id.wrapSome, 0, id.passId, 0)])],
-      outPins: [pin('out', option(wc(0)))],
-
-    },
-    {
-      id: id.mapOption,
-      displayName: 'Map option',
-      type: 'option-map',
-      nodeClass: 'func',
-      x: 720,
-      y: 740,
-      inPins: [pin('in', option(wc(0)), [link(id.mapOption, 0, id.wrapSome, 0)])],
-      outPins: [pin('out', option(wc(0)))],
-
-    },
-
     {
       id: id.mapSource,
       displayName: 'Dict',

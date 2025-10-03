@@ -22,12 +22,12 @@ import { computed } from 'vue'
 import {
   type Pin,
   dataToPinId,
-  getTypeString,
   canConnect,
   resolveScheme,
   schemeTypeTag,
 } from '../../core'
 import { useWildcards } from '../../composables/useWildcards'
+import { useTypeRegistry } from '../../typeRegistry'
 import PinIcon from './pinIcons/PinIcon.vue'
 
 const directionMap = {
@@ -47,13 +47,14 @@ const props = withDefaults(
 )
 
 const { nodeWildcards, nodesById } = useWildcards()
+const { typeRegistry } = useTypeRegistry()
 
 const resolvedPin = computed((): Pin => ({
   ...props.pin,
   valueSchema: resolveScheme(props.pin.valueSchema, props.nodeId, nodeWildcards.value),
 }))
 
-const tooltip = computed(() => getTypeString(resolvedPin.value.valueSchema))
+const tooltip = computed(() => typeRegistry.value.format(resolvedPin.value.valueSchema))
 
 const validateHandle: ValidConnectionFunc = (params: Connection) => {
   if (!params.source || !params.target || !params.sourceHandle || !params.targetHandle) {

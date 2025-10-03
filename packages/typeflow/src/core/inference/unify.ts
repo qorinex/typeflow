@@ -130,11 +130,11 @@ function replaceVars(
   return changed ? setSchemeChildren(cloneDeep(scheme), next) : scheme
 }
 
-export function findWildcards(scheme: PinTypeScheme): { groupIndex: number }[] {
+export function findTypeVars(scheme: PinTypeScheme): { groupIndex: number }[] {
   if (isTypeVar(scheme)) return [{ groupIndex: scheme.groupIndex }]
   const found: { groupIndex: number }[] = []
   for (const child of getSchemeChildren(scheme)) {
-    found.push(...findWildcards(child.scheme))
+    found.push(...findTypeVars(child.scheme))
   }
   return found
 }

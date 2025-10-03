@@ -119,14 +119,10 @@ import {
   FlowNode,
   PinLegend,
   WildcardPanel,
-  provideFlowTheme,
   useTypeflow,
   type NodeData,
 } from 'typeflow'
-import {
-  createBlueprintTheme,
-  provideBlueprintPinHandle,
-} from 'typeflow/presets/blueprint'
+import { provideBlueprintPreset } from 'typeflow/presets/blueprint'
 
 const props = withDefaults(
   defineProps<{
@@ -144,9 +140,7 @@ const emit = defineEmits<{
   'update:nodes': [nodes: NodeData[]]
 }>()
 
-const theme = createBlueprintTheme()
-provideFlowTheme(theme)
-provideBlueprintPinHandle()
+const { theme } = provideBlueprintPreset()
 
 const rootStyle = computed(() => ({
   background: theme.canvas.background,

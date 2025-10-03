@@ -53,10 +53,14 @@ import { VueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import {
   provideFlowTheme,
+  provideTypeRegistry,
   useTypeflow,
   type NodeData,
 } from 'typeflow'
-import { createBlueprintTheme } from 'typeflow/presets/blueprint'
+import {
+  createBlueprintTheme,
+  createBlueprintTypeRegistry,
+} from 'typeflow/presets/blueprint'
 import CustomNode from '@/components/CustomNode.vue'
 import CustomEdge from '@/components/CustomEdge.vue'
 
@@ -70,6 +74,7 @@ const emit = defineEmits<{
 
 const theme = createBlueprintTheme()
 provideFlowTheme(theme)
+provideTypeRegistry(createBlueprintTypeRegistry())
 
 const { elements, isValidConnection, onConnect, onEdgesChange, onNodesChange } = useTypeflow({
   nodes: () => props.nodes,

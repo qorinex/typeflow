@@ -12,6 +12,7 @@ export default defineConfig({
     alias: [
       { find: 'typeflow/style.css', replacement: `${typeflowSrc}/style.css` },
       { find: 'typeflow/presets/blueprint', replacement: `${typeflowSrc}/presets/blueprint/index.ts` },
+      { find: 'typeflow/typeRegistry', replacement: `${typeflowSrc}/typeRegistry/index.ts` },
       { find: 'typeflow/core', replacement: `${typeflowSrc}/core/index.ts` },
       { find: 'typeflow/theme', replacement: `${typeflowSrc}/theme/index.ts` },
       { find: 'typeflow/vue', replacement: `${typeflowSrc}/vue/index.ts` },

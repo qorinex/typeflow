@@ -1,4 +1,6 @@
 import { createTheme, type FlowTheme } from '../../theme'
+import { pinsFromPacks } from '../../typeRegistry'
+import { blueprintTypePack } from './pack'
 import ConstSVG from './icons/const.svg'
 import EventSVG from './icons/event.svg'
 import FuncSVG from './icons/func.svg'
@@ -17,24 +19,7 @@ export type BlueprintNodeClass =
 
 export function createBlueprintTheme(): FlowTheme {
   return createTheme({
-    pins: {
-      exec: { color: '#e4e4e7', label: 'exec' },
-      any: { color: '#6b7280', label: 'any' },
-      bool: { color: '#eab308', label: 'bool' },
-      time: { color: '#a855f7', label: 'time' },
-      int: { color: '#3b82f6', label: 'int' },
-      float: { color: '#22c55e', label: 'float' },
-      str: { color: '#f97316', label: 'str' },
-      duration: { color: '#7E22CE', label: 'duration' },
-      map: { color: '#ef4444', label: 'map' },
-      list: { color: '#6366f1', label: 'list' },
-      tuple: { color: '#ec4899', label: 'tuple' },
-      struct: { color: '#14b8a6', label: 'struct' },
-      'embedded-macro': { color: '#ef4444', label: 'embedded-macro' },
-      var: { color: '#6b7280', label: 'var' },
-      option: { color: '#14b8a6', label: 'option' },
-      result: { color: '#f59e0b', label: 'result' },
-    },
+    pins: pinsFromPacks([blueprintTypePack]),
     nodes: {
       const: {
         borderColor: '#7dd3fc',

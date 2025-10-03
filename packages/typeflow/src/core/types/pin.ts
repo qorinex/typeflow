@@ -1,19 +1,11 @@
 export type TypeVarScheme = {
   kind: 'var'
   groupIndex: number
-  default?: unknown
 }
 
 export type NamedTypeScheme = {
   type: string
-  default?: unknown
-  item?: PinTypeScheme
-  entry?: PinTypeScheme
-  items?: PinTypeScheme[]
-  fields?: { [key: string]: PinTypeScheme }
-  slots?: { [key: string]: PinTypeScheme }
-  input?: { schema: PinTypeScheme; name?: string }[]
-  output?: { schema: PinTypeScheme; name?: string }[]
+  args?: Record<string, PinTypeScheme>
 }
 
 export type PinTypeScheme = TypeVarScheme | NamedTypeScheme
@@ -47,6 +39,16 @@ export function schemeTypeTag(scheme: PinTypeScheme): string {
   return isTypeVar(scheme) ? 'var' : scheme.type
 }
 
-export function typeVar(groupIndex: number, defaults?: unknown): TypeVarScheme {
-  return { kind: 'var', groupIndex, default: defaults }
+export function typeVar(groupIndex: number): TypeVarScheme {
+  return { kind: 'var', groupIndex }
+}
+
+/** Build named type scheme: `{ type, args? }` */
+export function typeScheme(
+  type: string,
+  args?: Record<string, PinTypeScheme>,
+): NamedTypeScheme {
+  const scheme: NamedTypeScheme = { type }
+  if (args && Object.keys(args).length > 0) scheme.args = args
+  return scheme
 }
