@@ -55,13 +55,6 @@
         >
           {{ activeGraph.description }}
         </span>
-        <label
-          v-if="page === 'graph'"
-          class="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none shrink-0"
-        >
-          <input v-model="showDebug" type="checkbox" class="rounded" />
-          bindings
-        </label>
       </div>
     </header>
 
@@ -71,7 +64,6 @@
         :key="`graph-${activeGraph.id}`"
         v-model:nodes="activeNodes"
         :show-legend="true"
-        :show-wildcard-panel="showDebug"
       />
       <CustomUiPage
         v-else-if="page === 'custom'"
@@ -114,7 +106,6 @@ const customNodes = ref<NodeData[]>(cloneDeep(sampleGraphs[0].nodes))
 const cleanNodes = ref<NodeData[]>(cloneDeep(cleanGraphNodes))
 
 const page = ref<Page>('graph')
-const showDebug = ref(false)
 
 function openGraph(id: string) {
   activeGraphId.value = id
