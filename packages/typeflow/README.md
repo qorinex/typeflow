@@ -127,23 +127,6 @@ const listOfStrings = bp.list(bp.t('str'))
 const listOfAnything = bp.list(typeVar(0))
 ```
 
-## Development
-
-```sh
-npm install
-npm run dev
-```
-
-Useful commands:
-
-```sh
-npm test          # run unit tests
-npm run build:lib # build the npm package
-npm run build     # type-check and build the demo
-```
-
-The package is built into `packages/typeflow/dist`.
-
 ## License
 
-[MIT](packages/typeflow/LICENSE) © 2026 qorinex
+MIT © 2026 qorinex

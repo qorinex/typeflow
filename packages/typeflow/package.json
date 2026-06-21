@@ -4,41 +4,53 @@
   "description": "Typed node graphs with wildcard type inference",
   "type": "module",
   "license": "MIT",
+  "author": {
+    "name": "qorinex",
+    "url": "https://github.com/qorinex"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "sideEffects": ["**/*.css"],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./core": {
-      "types": "./src/core/index.ts",
-      "import": "./src/core/index.ts",
-      "default": "./src/core/index.ts"
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "default": "./dist/core/index.js"
     },
     "./theme": {
-      "types": "./src/theme/index.ts",
-      "import": "./src/theme/index.ts",
-      "default": "./src/theme/index.ts"
+      "types": "./dist/theme/index.d.ts",
+      "import": "./dist/theme/index.js",
+      "default": "./dist/theme/index.js"
     },
     "./vue": {
-      "types": "./src/vue/index.ts",
-      "import": "./src/vue/index.ts",
-      "default": "./src/vue/index.ts"
+      "types": "./dist/vue/index.d.ts",
+      "import": "./dist/vue/index.js",
+      "default": "./dist/vue/index.js"
     },
     "./typeRegistry": {
-      "types": "./src/typeRegistry/index.ts",
-      "import": "./src/typeRegistry/index.ts",
-      "default": "./src/typeRegistry/index.ts"
+      "types": "./dist/typeRegistry/index.d.ts",
+      "import": "./dist/typeRegistry/index.js",
+      "default": "./dist/typeRegistry/index.js"
     },
     "./presets/blueprint": {
-      "types": "./src/presets/blueprint/index.ts",
-      "import": "./src/presets/blueprint/index.ts",
-      "default": "./src/presets/blueprint/index.ts"
+      "types": "./dist/presets/blueprint/index.d.ts",
+      "import": "./dist/presets/blueprint/index.js",
+      "default": "./dist/presets/blueprint/index.js"
     },
-    "./style.css": "./src/style.css"
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
   },
-  "files": ["src"],
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "vite build --config vite.config.ts && vue-tsc -p tsconfig.json --noEmit false --emitDeclarationOnly --declarationMap false --outDir dist",
+    "prepack": "npm run build"
+  },
   "peerDependencies": {
     "@vue-flow/background": "^1.2.0",
     "@vue-flow/core": "^1.33.1",

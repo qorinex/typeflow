@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --config demo/vite.config.ts --host",
     "build": "vue-tsc --noEmit -p demo/tsconfig.json && vite build --config demo/vite.config.ts",
+    "build:lib": "npm --prefix packages/typeflow run build",
     "preview": "vite preview --config demo/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest"
