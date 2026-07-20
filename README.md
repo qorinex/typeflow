@@ -11,9 +11,7 @@ infers wildcard types across the graph.
 The video shows the second demo: connecting pins, propagating inferred types,
 and highlighting compatible connections.
 
-<video src="https://raw.githubusercontent.com/qorinex/typeflow/master/demo.webm" controls></video>
-
-[Watch the demo video](https://raw.githubusercontent.com/qorinex/typeflow/master/demo.webm)
+[![Typeflow pin connections, type propagation, and compatibility highlighting](https://raw.githubusercontent.com/qorinex/typeflow/master/demo.gif)](https://q-typeflow.netlify.app/)
 
 ## Features
 
