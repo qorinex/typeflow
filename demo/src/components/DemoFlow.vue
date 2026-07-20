@@ -67,8 +67,8 @@ import {
   PinLegend,
   useTypeflow,
   type NodeData,
-} from 'typeflow'
-import { provideBlueprintPreset } from 'typeflow/presets/blueprint'
+} from '@qorinex/typeflow'
+import { provideBlueprintPreset } from '@qorinex/typeflow/presets/blueprint'
 
 const props = withDefaults(
   defineProps<{

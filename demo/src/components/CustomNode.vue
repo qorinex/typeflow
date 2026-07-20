@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { NodeData } from 'typeflow'
+import type { NodeData } from '@qorinex/typeflow'
 import CustomPin from '@/components/CustomPin.vue'
 
 withDefaults(

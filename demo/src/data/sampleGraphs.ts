@@ -1,6 +1,6 @@
-import type { NodeData, Pin, PinLink, PinTypeScheme } from 'typeflow/core'
-import { typeVar } from 'typeflow/core'
-import { bp } from 'typeflow/presets/blueprint'
+import type { NodeData, Pin, PinLink, PinTypeScheme } from '@qorinex/typeflow/core'
+import { typeVar } from '@qorinex/typeflow/core'
+import { bp } from '@qorinex/typeflow/presets/blueprint'
 
 export type SampleGraph = {
   id: string

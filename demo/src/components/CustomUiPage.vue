@@ -56,11 +56,11 @@ import {
   provideTypeRegistry,
   useTypeflow,
   type NodeData,
-} from 'typeflow'
+} from '@qorinex/typeflow'
 import {
   createBlueprintTheme,
   createBlueprintTypeRegistry,
-} from 'typeflow/presets/blueprint'
+} from '@qorinex/typeflow/presets/blueprint'
 import CustomNode from '@/components/CustomNode.vue'
 import CustomEdge from '@/components/CustomEdge.vue'
 

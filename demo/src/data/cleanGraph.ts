@@ -1,5 +1,5 @@
-import type { NodeData, Pin, PinLink, PinTypeScheme } from 'typeflow/core'
-import { typeVar } from 'typeflow/core'
+import type { NodeData, Pin, PinLink, PinTypeScheme } from '@qorinex/typeflow/core'
+import { typeVar } from '@qorinex/typeflow/core'
 
 function pin(name: string, schema: PinTypeScheme, links: PinLink[] = []): Pin {
   return { name, linkable: true, valueSchema: schema, links }

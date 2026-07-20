@@ -81,7 +81,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { cloneDeep, type NodeData } from 'typeflow'
+import { cloneDeep, type NodeData } from '@qorinex/typeflow'
 import { sampleGraphs, type SampleGraph } from '@/data/sampleGraphs'
 import { cleanGraphNodes } from '@/data/cleanGraph'
 import DemoFlow from '@/components/DemoFlow.vue'

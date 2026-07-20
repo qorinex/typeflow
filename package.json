@@ -14,7 +14,7 @@
   "dependencies": {
     "@vue-flow/background": "1.2.0",
     "@vue-flow/core": "1.33.1",
-    "typeflow": "file:./packages/typeflow",
+    "@qorinex/typeflow": "file:./packages/typeflow",
     "vue": "3.5.18"
   },
   "devDependencies": {

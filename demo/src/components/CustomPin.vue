@@ -31,7 +31,7 @@ import {
   useFlowTheme,
   useWildcards,
   type Pin,
-} from 'typeflow'
+} from '@qorinex/typeflow'
 
 const directionMap = {
   source: 'in',

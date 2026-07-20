@@ -20,13 +20,13 @@ infers wildcard types across the graph.
 ## Installation
 
 ```sh
-npm install typeflow vue @vue-flow/core @vue-flow/background
+npm install @qorinex/typeflow vue @vue-flow/core @vue-flow/background
 ```
 
 Import the library styles once in your application entry:
 
 ```ts
-import 'typeflow/style.css'
+import '@qorinex/typeflow/style.css'
 ```
 
 ## Quick start
@@ -66,7 +66,7 @@ import {
   type NodeData,
   typeScheme,
   typeVar,
-} from 'typeflow'
+} from '@qorinex/typeflow'
 
 const pin = (name: string, valueSchema: NodeData['inPins'][number]['valueSchema']) => ({
   name,
@@ -115,11 +115,11 @@ The optional Blueprint preset provides a theme, type registry, pin renderer and
 constructors for common nested types:
 
 ```ts
-import { typeVar } from 'typeflow/core'
+import { typeVar } from '@qorinex/typeflow/core'
 import {
   bp,
   provideBlueprintPreset,
-} from 'typeflow/presets/blueprint'
+} from '@qorinex/typeflow/presets/blueprint'
 
 provideBlueprintPreset()
 

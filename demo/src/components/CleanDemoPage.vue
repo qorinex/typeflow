@@ -58,7 +58,7 @@ import {
   provideFlowTheme,
   useTypeflow,
   type NodeData,
-} from 'typeflow'
+} from '@qorinex/typeflow'
 
 const props = defineProps<{
   nodes: NodeData[]

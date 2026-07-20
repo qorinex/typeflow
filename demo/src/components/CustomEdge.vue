@@ -19,7 +19,7 @@ import {
   schemeTypeTag,
   useFlowTheme,
   useWildcards,
-} from 'typeflow'
+} from '@qorinex/typeflow'
 
 const props = defineProps<{
   id: string

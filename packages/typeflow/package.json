@@ -1,5 +1,5 @@
 {
-  "name": "typeflow",
+  "name": "@qorinex/typeflow",
   "version": "0.1.0",
   "description": "Typed node graphs with wildcard type inference",
   "type": "module",

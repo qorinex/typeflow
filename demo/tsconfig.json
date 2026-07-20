@@ -16,8 +16,8 @@
     "noUnusedParameters": false,
     "paths": {
       "@/*": ["./src/*"],
-      "typeflow": ["../packages/typeflow/src/index.ts"],
-      "typeflow/*": ["../packages/typeflow/src/*"]
+      "@qorinex/typeflow": ["../packages/typeflow/src/index.ts"],
+      "@qorinex/typeflow/*": ["../packages/typeflow/src/*"]
     }
   },
   "include": [
