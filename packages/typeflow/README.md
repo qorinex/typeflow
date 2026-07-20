@@ -4,6 +4,17 @@ Typeflow is a typed node-graph engine with ready-to-use components for
 [Vue Flow](https://vueflow.dev/). It validates connections between pins and
 infers wildcard types across the graph.
 
+## Demo
+
+[Open the live demo](https://q-typeflow.netlify.app/)
+
+The video shows the second demo: connecting pins, propagating inferred types,
+and highlighting compatible connections.
+
+<video src="https://raw.githubusercontent.com/qorinex/typeflow/master/demo.webm" controls></video>
+
+[Watch the demo video](https://raw.githubusercontent.com/qorinex/typeflow/master/demo.webm)
+
 ## Features
 
 - Typed input and output pins
