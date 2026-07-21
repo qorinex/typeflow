@@ -1,6 +1,6 @@
 {
   "name": "@qorinex/typeflow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Typed node graphs with wildcard type inference",
   "type": "module",
   "license": "MIT",
@@ -11,7 +11,9 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -46,7 +48,11 @@
     "./style.css": "./dist/style.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "vite build --config vite.config.ts && vue-tsc -p tsconfig.json --noEmit false --emitDeclarationOnly --declarationMap false --outDir dist",
     "prepack": "npm run build"
@@ -56,5 +62,18 @@
     "@vue-flow/core": "^1.33.1",
     "vue": "^3.2.45"
   },
-  "keywords": ["graph", "types", "wildcard", "inference", "vue"]
+  "keywords": [
+    "vue",
+    "vue-flow",
+    "typescript",
+    "node-editor",
+    "node-graph",
+    "visual-programming",
+    "type-system",
+    "type-inference",
+    "typed-graph",
+    "generic-types",
+    "connection-validation",
+    "workflow-editor"
+   ]
 }
