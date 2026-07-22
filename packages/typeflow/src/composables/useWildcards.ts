@@ -3,6 +3,7 @@ import type { InferenceConflict, NodeData, NodeWC } from '../core'
 
 export type WildcardsContext = {
   nodeWildcards: Ref<NodeWC>
+  validationWildcards: Ref<NodeWC>
   nodesById: Ref<Record<string, NodeData>>
   conflicts: Ref<InferenceConflict[]>
 }

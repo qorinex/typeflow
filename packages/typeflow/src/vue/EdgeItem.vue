@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { BaseEdge, getBezierPath, type Position } from '@vue-flow/core'
 import { computed } from 'vue'
-import { pinIdToData, resolveScheme } from '../core'
+import { isTypeVar, pinIdToData, resolveScheme } from '../core'
 import { useWildcards } from '../composables/useWildcards'
 import { useFlowTheme } from '../theme'
 import { useTypeRegistry } from '../typeRegistry'
@@ -58,6 +58,12 @@ const visualType = computed(() => {
     if (!pin) return type || 'any'
 
     const resolved = resolveScheme(pin.valueSchema, nodeId, nodeWildcards.value)
+    if (!isTypeVar(resolved)) {
+      const icon = typeRegistry.value.getDef(resolved.type)?.icon
+      if (icon === 'list' || icon === 'map' || icon === 'tuple' || icon === 'struct') {
+        return resolved.type
+      }
+    }
     return typeRegistry.value.colorKey(resolved)
   } catch {
     return 'any'

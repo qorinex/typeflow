@@ -33,7 +33,7 @@
           "
           @click="page = 'custom'"
         >
-          Custom UI
+          Customization
         </button>
         <button
           type="button"
@@ -64,6 +64,8 @@
         :key="`graph-${activeGraph.id}`"
         v-model:nodes="activeNodes"
         :show-legend="true"
+        :challenge="activeGraph.challenge"
+        :auto-connect="activeGraph.autoConnect"
       />
       <CustomUiPage
         v-else-if="page === 'custom'"
@@ -82,7 +84,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { cloneDeep, type NodeData } from '@qorinex/typeflow'
-import { sampleGraphs, type SampleGraph } from '@/data/sampleGraphs'
+import { multiDirectionGraph, sampleGraphs, type SampleGraph } from '@/data/sampleGraphs'
 import { cleanGraphNodes } from '@/data/cleanGraph'
 import DemoFlow from '@/components/DemoFlow.vue'
 import CustomUiPage from '@/components/CustomUiPage.vue'
@@ -102,7 +104,7 @@ const activeNodes = computed<NodeData[]>({
   },
 })
 
-const customNodes = ref<NodeData[]>(cloneDeep(sampleGraphs[0].nodes))
+const customNodes = ref<NodeData[]>(cloneDeep(multiDirectionGraph.nodes))
 const cleanNodes = ref<NodeData[]>(cloneDeep(cleanGraphNodes))
 
 const page = ref<Page>('graph')

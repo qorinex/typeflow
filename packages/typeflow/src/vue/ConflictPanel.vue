@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="conflicts.length"
-    class="absolute top-3 right-3 z-10 w-80 max-h-[50%] overflow-auto rounded-lg border border-red-500/60 bg-zinc-950/95 p-3 text-xs shadow-xl"
+    class="absolute bottom-3 right-3 z-10 w-80 max-h-[50%] overflow-auto rounded-lg border border-red-500/60 bg-zinc-950/95 p-3 text-xs shadow-xl"
   >
     <div class="font-semibold text-red-400 mb-1">
       Conflicts ({{ conflicts.length }})

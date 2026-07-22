@@ -4,6 +4,7 @@ import { applyBindings, schemesEqual, unify, type BindContext } from './unify'
 import { pinIdToData } from '../helpers/pin'
 import { cloneDeep } from '../helpers/clone'
 import { connectionToLinkRef, linkToEdgeId } from '../helpers/link'
+import { inferSymbolicBindings } from './symbolic'
 
 export type NodeWC = {
   [nodeId: string]: {
@@ -28,6 +29,7 @@ export type InferenceConflict = {
 
 export type InferenceResult = {
   bindings: NodeWC
+  displayBindings: NodeWC
   conflicts: InferenceConflict[]
 }
 
@@ -161,5 +163,7 @@ export function inferWildcards(
     })
   }
 
-  return { bindings, conflicts }
+  const displayBindings = inferSymbolicBindings(constraints, graphNodes)
+
+  return { bindings, displayBindings, conflicts }
 }

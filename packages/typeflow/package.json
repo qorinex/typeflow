@@ -1,6 +1,6 @@
 {
   "name": "@qorinex/typeflow",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Typed node graphs with wildcard type inference",
   "type": "module",
   "license": "MIT",
@@ -75,5 +75,5 @@
     "generic-types",
     "connection-validation",
     "workflow-editor"
-   ]
+  ]
 }

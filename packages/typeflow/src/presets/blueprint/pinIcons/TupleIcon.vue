@@ -5,14 +5,9 @@
       stroke-width="2.25"
       stroke-linecap="round"
       stroke-linejoin="round"
-      d="m12 7-4.5 10L12 27M22 7l4.5 10L22 27"
+      d="M13 6.5c-3.3 2.8-5 6.3-5 10.5s1.7 7.7 5 10.5M21 6.5c3.3 2.8 5 6.3 5 10.5s-1.7 7.7-5 10.5"
     />
-    <path
-      :stroke="secondaryColor"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      d="M14 12.5h6M14 17h6M14 21.5h4"
-    />
+    <rect x="14" y="14" width="6" height="6" rx="1" :fill="secondaryColor" />
   </svg>
 </template>
 

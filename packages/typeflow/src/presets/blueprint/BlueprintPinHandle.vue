@@ -1,10 +1,11 @@
 <template>
   <div
-    class="relative"
-    :class="type === 'target' ? 'right-1' : 'left-1'"
+    class="pin-handle relative"
+    :class="[type === 'target' ? 'right-1' : 'left-1', { 'pin-handle-pressed': pressed }]"
     :title="tooltip"
+    @pointerdown.capture="pressed = true"
   >
-    <PinIcon :pin="resolvedPin" class-name="absolute w-5 h-5 pointer-events-none" />
+    <PinIcon :pin="resolvedPin" class-name="pin-handle-visual absolute w-5 h-5 pointer-events-none" />
     <Handle
       :id="dataToPinId(directionMap[type], index, nodeId, schemeTypeTag(pin.valueSchema))"
       :position="type === 'target' ? Position.Right : Position.Left"
@@ -18,7 +19,7 @@
 
 <script lang="ts" setup>
 import { Handle, Position, type Connection, type HandleType, type ValidConnectionFunc } from '@vue-flow/core'
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   type Pin,
   dataToPinId,
@@ -46,8 +47,13 @@ const props = withDefaults(
   { connectable: true },
 )
 
-const { nodeWildcards, nodesById } = useWildcards()
+const { nodeWildcards, validationWildcards, nodesById } = useWildcards()
 const { typeRegistry } = useTypeRegistry()
+const pressed = ref(false)
+
+const releasePin = () => { pressed.value = false }
+onMounted(() => window.addEventListener('pointerup', releasePin))
+onBeforeUnmount(() => window.removeEventListener('pointerup', releasePin))
 
 const resolvedPin = computed((): Pin => ({
   ...props.pin,
@@ -68,7 +74,22 @@ const validateHandle: ValidConnectionFunc = (params: Connection) => {
       targetHandle: params.targetHandle,
     },
     nodesById.value,
-    nodeWildcards.value,
+    validationWildcards.value,
   )
 }
 </script>
+
+<style scoped>
+.pin-handle-visual {
+  transition: filter 140ms ease, transform 140ms ease;
+  transform-origin: center;
+}
+
+.pin-handle:hover .pin-handle-visual {
+  transform: scale(1.02);
+}
+
+.pin-handle.pin-handle-pressed .pin-handle-visual {
+  transform: scale(1.12);
+}
+</style>

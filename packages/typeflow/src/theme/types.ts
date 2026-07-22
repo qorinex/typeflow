@@ -7,6 +7,7 @@ export interface NodeClassAppearance {
   borderColor: string
   headerBackground: string
   icon?: string
+  iconSize?: string
 }
 
 export interface CanvasAppearance {

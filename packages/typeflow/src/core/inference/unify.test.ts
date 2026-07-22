@@ -58,6 +58,22 @@ describe('unify', () => {
     expect(r.ok).toBe(true)
     expect(bound[0]).toEqual({ type: 'str' })
   })
+
+  it('does not capture a foreign var inside a composite binding', () => {
+    const bound: Record<number, PinTypeScheme> = {}
+    const vehicleOfForeignVar = typeScheme('vehicle', { kind: typeVar(0) })
+
+    const r = unify(typeVar(0), vehicleOfForeignVar, {
+      resolveVar: () => undefined,
+      bindVar: (_, idx, scheme) => {
+        bound[idx] = scheme
+        return true
+      },
+    })
+
+    expect(r.ok).toBe(true)
+    expect(bound).toEqual({})
+  })
 })
 
 describe('schemesEqual / type vars', () => {

@@ -1,11 +1,12 @@
 <template>
   <div
-    class="relative flex items-center justify-center"
-    :class="type === 'target' ? 'right-1' : 'left-1'"
+    class="pin-handle relative flex items-center justify-center"
+    :class="[type === 'target' ? 'right-1' : 'left-1', { 'pin-handle-pressed': pressed }]"
     :title="tooltip"
+    @pointerdown.capture="pressed = true"
   >
     <span
-      class="pointer-events-none absolute h-3.5 w-3.5 rounded-sm border-2 bg-zinc-950"
+      class="pin-handle-visual pointer-events-none absolute h-3.5 w-3.5 rounded-sm border-2 bg-zinc-950"
       :style="{ borderColor: color, backgroundColor: color + '33' }"
     />
     <Handle
@@ -21,7 +22,7 @@
 
 <script lang="ts" setup>
 import { Handle, Position, type Connection, type HandleType, type ValidConnectionFunc } from '@vue-flow/core'
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   type Pin,
   dataToPinId,
@@ -49,9 +50,14 @@ const props = withDefaults(
   { connectable: true },
 )
 
-const { nodeWildcards, nodesById } = useWildcards()
+const { nodeWildcards, validationWildcards, nodesById } = useWildcards()
 const { pinColor } = useFlowTheme()
 const { typeRegistry } = useTypeRegistry()
+const pressed = ref(false)
+
+const releasePin = () => { pressed.value = false }
+onMounted(() => window.addEventListener('pointerup', releasePin))
+onBeforeUnmount(() => window.removeEventListener('pointerup', releasePin))
 
 const resolvedSchema = computed(() =>
   resolveScheme(props.pin.valueSchema, props.nodeId, nodeWildcards.value),
@@ -72,7 +78,22 @@ const validateHandle: ValidConnectionFunc = (params: Connection) => {
       targetHandle: params.targetHandle,
     },
     nodesById.value,
-    nodeWildcards.value,
+    validationWildcards.value,
   )
 }
 </script>
+
+<style scoped>
+.pin-handle-visual {
+  transition: filter 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+  transform-origin: center;
+}
+
+.pin-handle:hover .pin-handle-visual {
+  transform: scale(1.02);
+}
+
+.pin-handle.pin-handle-pressed .pin-handle-visual {
+  transform: scale(1.12);
+}
+</style>

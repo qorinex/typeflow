@@ -11,7 +11,8 @@
       <img
         v-if="nodeLook.icon"
         :src="nodeLook.icon"
-        class="h-4 w-4 shrink-0"
+        class="shrink-0"
+        :style="{ width: nodeLook.iconSize || '1rem', height: nodeLook.iconSize || '1rem' }"
         alt=""
       />
       <div class="min-w-0 flex-1">
@@ -29,7 +30,7 @@
         <div
           v-for="(pin, index) in data.inPins"
           :key="`in-${index}`"
-          class="flex gap-2 py-1 items-center relative hover:bg-white/5 pr-1"
+          class="flex gap-2 py-1 items-center relative pr-1"
         >
           <component
             :is="PinHandleComp"
@@ -39,14 +40,16 @@
             :pin="pin"
             :connectable="connectable"
           />
-          <div class="flex  flex-col ml-1 leading-3">
+          <div class="flex flex-col ml-1 leading-3">
             <span class="text-xs text-zinc-300">{{ pin.name }}</span>
             <span
               v-if="resolvedLabel(pin, data.id)"
               class="text-[9px] font-mono"
-              :style="{ color: labelColor(pin, data.id) }"
             >
-              {{ resolvedLabel(pin, data.id) }}
+              <TypeSchemeLabel
+                :text="resolvedLabel(pin, data.id) || ''"
+                :fallback-color="labelColor(pin, data.id)"
+              />
             </span>
           </div>
         </div>
@@ -55,16 +58,18 @@
         <div
           v-for="(pin, index) in data.outPins"
           :key="`out-${index}`"
-          class="flex gap-2 py-1 items-center relative justify-end hover:bg-white/5 pl-1"
+          class="flex gap-2 py-1 items-center relative justify-end pl-1"
         >
           <div class="flex flex-col mr-1 leading-3 items-end">
             <span class="text-xs text-zinc-300">{{ pin.name }}</span>
             <span
               v-if="resolvedLabel(pin, data.id)"
               class="text-[9px] font-mono"
-              :style="{ color: labelColor(pin, data.id) }"
             >
-              {{ resolvedLabel(pin, data.id) }}
+              <TypeSchemeLabel
+                :text="resolvedLabel(pin, data.id) || ''"
+                :fallback-color="labelColor(pin, data.id)"
+              />
             </span>
           </div>
           <component
@@ -95,6 +100,7 @@ import { pinHandleKey } from './pinHandleKey'
 import { useWildcards } from '../composables/useWildcards'
 import { useFlowTheme } from '../theme'
 import { useTypeRegistry } from '../typeRegistry'
+import TypeSchemeLabel from './TypeSchemeLabel.vue'
 
 const PinHandleComp = inject(pinHandleKey, DefaultPinHandle)
 

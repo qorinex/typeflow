@@ -5,12 +5,9 @@
       stroke-width="2.25"
       stroke-linecap="round"
       stroke-linejoin="round"
-      d="m22.5 6.5 7 10.5-7 10.5M11.5 6.5l-7 10.5 7 10.5"
+      d="M13 7c-2.5 0-4 1.5-4 4v2.5c0 1.8-.9 3-2.5 3.5C8.1 17.5 9 18.7 9 20.5V23c0 2.5 1.5 4 4 4M21 7c2.5 0 4 1.5 4 4v2.5c0 1.8.9 3 2.5 3.5-1.6.5-2.5 1.7-2.5 3.5V23c0 2.5-1.5 4-4 4"
     />
-    <rect x="12.5" y="12.5" width="4" height="4" rx="0.7" :fill="secondaryColor" />
-    <rect x="17.5" y="12.5" width="4" height="4" rx="0.7" :fill="secondaryColor" />
-    <rect x="12.5" y="17.5" width="4" height="4" rx="0.7" :fill="secondaryColor" />
-    <rect x="17.5" y="17.5" width="4" height="4" rx="0.7" :fill="secondaryColor" />
+    <rect x="14" y="14" width="6" height="6" rx="1" :fill="secondaryColor" />
   </svg>
 </template>
 

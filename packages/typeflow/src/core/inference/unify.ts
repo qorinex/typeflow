@@ -49,10 +49,16 @@ export function unify(
     return { ok: true, scheme: left }
   }
   if (ctx && isTypeVar(left)) {
+    if (findTypeVars(right).length > 0) {
+      return { ok: true, scheme: cloneDeep(right) }
+    }
     ctx.bindVar('left', left.groupIndex, cloneDeep(right))
     return { ok: true, scheme: cloneDeep(right) }
   }
   if (ctx && isTypeVar(right)) {
+    if (findTypeVars(left).length > 0) {
+      return { ok: true, scheme: cloneDeep(left) }
+    }
     ctx.bindVar('right', right.groupIndex, cloneDeep(left))
     return { ok: true, scheme: cloneDeep(left) }
   }

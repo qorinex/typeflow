@@ -2,7 +2,6 @@ import {
   getTypeString,
   isNamedType,
   isTypeVar,
-  schemeTypeTag,
   type PinTypeScheme,
 } from '../core'
 import type {
@@ -56,8 +55,7 @@ export function createTypeRegistry(options: CreateTypeRegistryOptions): TypeRegi
     const def = getDef(scheme.type)
     if (def?.colorFrom && scheme.args?.[def.colorFrom]) {
       const child = scheme.args[def.colorFrom]
-      if (isTypeVar(child)) return scheme.type
-      return schemeTypeTag(child)
+      return colorKey(child)
     }
     return scheme.type
   }

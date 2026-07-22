@@ -39,7 +39,7 @@
     <img
       width="1672"
       height="941"
-      alt="Typeflow — type-safe node graphs with wildcard inference for Vue Flow"
+      alt="Typeflow is a type-safe node-graph library with wildcard inference for Vue Flow."
       src="https://github.com/user-attachments/assets/4de6c743-7833-4556-9afa-0f630314e814"
     />
   </a>

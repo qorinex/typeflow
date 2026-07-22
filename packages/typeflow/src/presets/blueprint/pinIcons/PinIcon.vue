@@ -8,19 +8,20 @@
     v-else-if="kind === 'struct'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="primary"
+    :secondary-color="frame"
   />
   <MapIcon
     v-else-if="kind === 'map'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="secondary"
+    :key-color="mapKeyColor"
+    :value-color="mapValueColor"
   />
   <TupleIcon
     v-else-if="kind === 'tuple'"
     :class="className"
     :primary-color="frame"
-    :secondary-color="primary"
+    :secondary-color="frame"
   />
   <ListIcon
     v-else-if="kind === 'list'"
@@ -37,7 +38,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { isTypeVar, schemeTypeTag, type Pin } from '../../../core'
+import { findTypeVars, isTypeVar, type Pin, type PinTypeScheme } from '../../../core'
 import { useFlowTheme } from '../../../theme'
 import { useTypeRegistry } from '../../../typeRegistry'
 import type { BlueprintPinIconKind } from '../pack'
@@ -56,7 +57,31 @@ const props = defineProps<{
 const { pinColor, theme } = useFlowTheme()
 const { typeRegistry } = useTypeRegistry()
 
-const frame = computed(() => theme.value.pinFallback.color)
+const hasUnresolvedVars = computed(() => findTypeVars(props.pin.valueSchema).length > 0)
+const frame = computed(() => {
+  const isMap = !isTypeVar(props.pin.valueSchema) && props.pin.valueSchema.type === 'map'
+  if ((hasUnresolvedVars.value && !isMap) || isTypeVar(props.pin.valueSchema)) {
+    return theme.value.pinFallback.color
+  }
+  return pinColor(props.pin.valueSchema.type)
+})
+
+const immediateColor = (scheme: PinTypeScheme) =>
+  pinColor(isTypeVar(scheme) ? 'var' : scheme.type)
+
+const mapKeyColor = computed(() => {
+  const scheme = props.pin.valueSchema
+  if (isTypeVar(scheme) || scheme.type !== 'map') return frame.value
+  const key = scheme.args?.key ?? { type: 'str' }
+  return immediateColor(key)
+})
+
+const mapValueColor = computed(() => {
+  const scheme = props.pin.valueSchema
+  if (isTypeVar(scheme) || scheme.type !== 'map') return frame.value
+  const value = scheme.args?.value ?? scheme.args?.entry
+  return value ? immediateColor(value) : frame.value
+})
 
 const kind = computed((): BlueprintPinIconKind => {
   if (isTypeVar(props.pin.valueSchema)) return 'primitive'
@@ -74,17 +99,18 @@ const kind = computed((): BlueprintPinIconKind => {
 })
 
 const primary = computed(() =>
-  pinColor(typeRegistry.value.colorKey(props.pin.valueSchema)),
+  pinColor(hasUnresolvedVars.value ? 'var' : typeRegistry.value.colorKey(props.pin.valueSchema)),
 )
 
 const secondary = computed(() => {
+  if (hasUnresolvedVars.value) return pinColor('var')
   const s = props.pin.valueSchema
   if (isTypeVar(s)) return pinColor('var')
   const def = typeRegistry.value.getDef(s.type)
   const from = def?.colorFrom
   if (from && s.args?.[from]) {
     const child = s.args[from]
-    return pinColor(isTypeVar(child) ? s.type : schemeTypeTag(child))
+    return pinColor(isTypeVar(child) ? 'var' : child.type)
   }
   return primary.value
 })

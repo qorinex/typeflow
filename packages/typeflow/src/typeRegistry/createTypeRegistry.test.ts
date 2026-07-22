@@ -11,6 +11,11 @@ describe('createTypeRegistry', () => {
     expect(registry.format(bp.list(typeVar(0)))).toBe('list[var(0)]')
   })
 
+  it('formats maps with explicit and default string keys', () => {
+    expect(registry.format(bp.map({ type: 'float' }))).toBe('map[str, float]')
+    expect(registry.format(bp.map({ type: 'int' }, { type: 'str' }))).toBe('map[int, str]')
+  })
+
   it('checks custom type formatting', () => {
     const scheme = typeScheme('hell', { e35dfs9: { type: 'str' } })
     expect(registry.format(scheme)).toBe('hell{e35dfs9: str}')
@@ -19,7 +24,8 @@ describe('createTypeRegistry', () => {
 
   it('gets color from inner type', () => {
     expect(registry.colorKey(bp.list({ type: 'float' }))).toBe('float')
-    expect(registry.colorKey(bp.list(typeVar(0)))).toBe('list')
+    expect(registry.colorKey(bp.list(typeVar(0)))).toBe('var')
+    expect(registry.colorKey(bp.list(bp.list({ type: 'str' })))).toBe('str')
   })
 
   it('uses type settings from last pack', () => {

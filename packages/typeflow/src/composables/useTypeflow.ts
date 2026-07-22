@@ -60,6 +60,7 @@ function isFlowNode(el: any): el is { id: string; position: { x: number; y: numb
 export function useTypeflow(options: UseTypeflowOptions): UseTypeflowReturn {
   const elements = ref<any[]>([])
   const wildcards = ref<NodeWC>({})
+  const displayWildcards = ref<NodeWC>({})
   const conflicts = ref<InferenceConflict[]>([])
 
   const nodesById = computed(() =>
@@ -67,7 +68,8 @@ export function useTypeflow(options: UseTypeflowOptions): UseTypeflowReturn {
   )
 
   provide(wildcardsKey, {
-    nodeWildcards: wildcards,
+    nodeWildcards: displayWildcards,
+    validationWildcards: wildcards,
     nodesById,
     conflicts,
   })
@@ -109,11 +111,27 @@ export function useTypeflow(options: UseTypeflowOptions): UseTypeflowReturn {
     const edges = elements.value.filter((e) => e.source && e.target && e.sourceHandle)
     const result = inferWildcards(edges, nodes)
     wildcards.value = result.bindings
+    displayWildcards.value = result.displayBindings
     conflicts.value = result.conflicts
   }
 
   function applyNodes(nodes: NodeData[]) {
-    elements.value = buildFlowElements(nodes)
+    const previousNodes = new Map(
+      elements.value
+        .filter(isFlowNode)
+        .map((element) => [element.id, element]),
+    )
+    elements.value = buildFlowElements(nodes).map((element: any) => {
+      if (!isFlowNode(element)) return element
+      const previous = previousNodes.get(element.id) as any
+      if (!previous) return element
+      return {
+        ...element,
+        position: previous.position,
+        dimensions: previous.dimensions,
+        selected: previous.selected,
+      }
+    })
     recomputeWildcards(nodes)
   }
 

@@ -41,11 +41,14 @@ export const blueprintTypePack: TypePack = {
       format: (p) => (p.item ? `list[${p.item}]` : 'list'),
     },
     map: {
-      color: '#ef4444',
+      color: '#0ea5e9',
       label: 'map',
       icon: icon('map'),
-      colorFrom: 'entry',
-      format: (p) => (p.entry ? `map[${p.entry}]` : 'map'),
+      format: (p) => {
+        const key = p.key ?? 'str'
+        const value = p.value ?? p.entry
+        return value ? `map[${key}, ${value}]` : 'map'
+      },
     },
     tuple: {
       color: '#ec4899',
@@ -75,7 +78,10 @@ export const bp = {
   t: (type: string, args?: Record<string, PinTypeScheme>) => typeScheme(type, args),
 
   list: (item: PinTypeScheme) => typeScheme('list', { item }),
-  map: (entry: PinTypeScheme) => typeScheme('map', { entry }),
+  map: (keyOrValue: PinTypeScheme, value?: PinTypeScheme) =>
+    value
+      ? typeScheme('map', { key: keyOrValue, value })
+      : typeScheme('map', { key: { type: 'str' }, value: keyOrValue }),
 
   tuple: (...items: PinTypeScheme[]) =>
     typeScheme(
